@@ -1,3 +1,14 @@
+dataTest = {
+    "imageURL":"", 
+    "title":"", 
+    "author":"", 
+    "demographic":"", 
+    "genre":"", 
+    "firstPublicationDate":"", 
+    "lirstPublicationDate":"",
+    "volumes":""
+}
+
 function appendResult(mangaData, id){
     var manga = $("<div>").load("assets/templates/manga-item.html");
     manga.attr("id", "manga-item-" + id);
@@ -5,7 +16,11 @@ function appendResult(mangaData, id){
 }
 
 function test(){
-    appendResult(0,1);
-    appendResult(0,2);
-    appendResult(0,3);
+    for (var i=0; i<3; i++){
+        appendResult(0,i);
+    }
+}
+
+function empty(){
+    $("#results").empty();
 }
