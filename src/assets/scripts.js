@@ -1,5 +1,5 @@
 function getResults(mangasData){
-    for(var i=0; i < mangasData.length; i++){
+    for(var i in mangasData){
         appendResult(i, mangasData[i]);
     }
 }
@@ -27,43 +27,3 @@ function appendResult(id, mangaData){
 function empty(){
     $("#results").empty();
 }
-
-
-dataTest = [
-    {
-        "imageURL":"http://www.konbini.com/wp-content/blogs.dir/11/files/2017/08/onepiece-480x279.jpg", 
-        "title":"One Piece", 
-        "description":"Some quick example text to build on the card title and make up the bulk of the card's content.",
-        "author":"", 
-        "demographic":"", 
-        "genre":"", 
-        "firstPublicationDate":"", 
-        "lastPublicationDate":"",
-        "volumes":""
-    },
-    {
-        "imageURL":"https://medias.comixtrip.fr/wp-content/uploads/2014/10/naruto-shippuden-02-1200x675.jpg", 
-        "title":"Naruto", 
-        "description":"Some quick example text to build on the card title and make up the bulk of the card's content.",
-        "author":"", 
-        "demographic":"", 
-        "genre":"", 
-        "firstPublicationDate":"", 
-        "lastPublicationDate":"",
-        "volumes":""
-    },
-    {
-        "imageURL":"https://static.hitek.fr/img/actualite/2016/08/18/fb_bleach-012.jpg", 
-        "title":"Bleach", 
-        "description":"Some quick example text to build on the card title and make up the bulk of the card's content.",
-        "author":"", 
-        "demographic":"", 
-        "genre":"", 
-        "firstPublicationDate":"", 
-        "lastPublicationDate":"",
-        "volumes":""
-    }
-]
-
-getResults(dataTest);
-getResults(dataTest);
