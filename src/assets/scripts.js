@@ -38,10 +38,12 @@ function getResults(mangasData){
 }
 
 function appendResult(mangaData, id){
-    var manga = $("<div>").load("assets/templates/manga-item.html");
-    manga.attr("id", "manga-item-" + id);
-    $("#results").append(manga);
-    $("#manga-item-" + id + " .title").text(mangaData["title"]);
+    var manga = $("<div>").load("assets/templates/manga-item.html", function() {
+        manga.attr("id", "manga-item-" + id);
+        manga.find(".title").text(mangaData["title"]);
+        console.log(manga);
+        $("#results").append(manga);
+    });
 }
 
 function test(){
