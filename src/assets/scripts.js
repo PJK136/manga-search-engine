@@ -34,16 +34,18 @@ dataTest = [
 function getResults(mangasData){
     for(var i=0; i < mangasData.length; i++){
         appendResult(i, mangasData[i]);
-        updateResult(i, mangasData[i]);
         location.reload();
     }
 }
 
+
 function appendResult(id, mangaData){
-    var manga = $("<div>").load("assets/templates/manga-item.html");
-    manga.attr("id", "manga-item-" + id);
-    $("#results").append(manga);
-    $("#manga-item-" + id + " .title").text(mangaData["title"]);
+    var manga = $("<div>").load("assets/templates/manga-item.html", function() {
+        manga.attr("id", "manga-item-" + id);
+        manga.find(".title").text(mangaData["title"]);
+        console.log(manga);
+        $("#results").append(manga);
+    });
 }
 
 function test(){
@@ -55,4 +57,3 @@ function test(){
 function empty(){
     $("#results").empty();
 }
-
