@@ -34,7 +34,6 @@ dataTest = [
 function getResults(mangasData){
     for(var i=0; i < mangasData.length; i++){
         appendResult(i, mangasData[i]);
-        location.reload();
     }
 }
 
@@ -43,7 +42,6 @@ function appendResult(id, mangaData){
     var manga = $("<div>").load("assets/templates/manga-item.html", function() {
         manga.attr("id", "manga-item-" + id);
         manga.find(".title").text(mangaData["title"]);
-        console.log(manga);
         $("#results").append(manga);
     });
 }
