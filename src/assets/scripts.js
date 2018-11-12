@@ -7,10 +7,11 @@ function getResults(mangasData){
 
 function appendResult(id, mangaData){
     var manga = $("<div>").load("assets/templates/manga-item.html", function() {
-        manga.attr("class", "manga-item")
+        manga.attr("class", "manga-item card col-md-3 ");
         manga.attr("id", "manga-item-" + id);
         manga.find(".image").attr("src", mangaData["imageURL"]);
         manga.find(".title").text(mangaData["title"]);
+        manga.find(".description").text(mangaData["description"]);
         manga.find(".author").text(mangaData["author"]);
         manga.find(".demografic").text(mangaData["demografic"]);
         manga.find(".type").text(mangaData["type"]);
@@ -18,6 +19,7 @@ function appendResult(id, mangaData){
         manga.find(".last-publication-date").text(mangaData["lastPublicationDate"]);
         manga.find(".volumes").text(mangaData["volumes"]);
         $("#results").append(manga);
+        $("#results").append("<br>");
     });
 }
 
@@ -31,6 +33,7 @@ dataTest = [
     {
         "imageURL":"http://www.konbini.com/wp-content/blogs.dir/11/files/2017/08/onepiece-480x279.jpg", 
         "title":"One Piece", 
+        "description":"Some quick example text to build on the card title and make up the bulk of the card's content.",
         "author":"", 
         "demographic":"", 
         "genre":"", 
@@ -41,6 +44,7 @@ dataTest = [
     {
         "imageURL":"https://medias.comixtrip.fr/wp-content/uploads/2014/10/naruto-shippuden-02-1200x675.jpg", 
         "title":"Naruto", 
+        "description":"Some quick example text to build on the card title and make up the bulk of the card's content.",
         "author":"", 
         "demographic":"", 
         "genre":"", 
@@ -51,6 +55,7 @@ dataTest = [
     {
         "imageURL":"https://static.hitek.fr/img/actualite/2016/08/18/fb_bleach-012.jpg", 
         "title":"Bleach", 
+        "description":"Some quick example text to build on the card title and make up the bulk of the card's content.",
         "author":"", 
         "demographic":"", 
         "genre":"", 
@@ -59,3 +64,6 @@ dataTest = [
         "volumes":""
     }
 ]
+
+getResults(dataTest);
+getResults(dataTest);
