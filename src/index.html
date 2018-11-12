@@ -12,15 +12,84 @@
     <title>WS-43</title>
 </head>
 <body>
-    <h1>WS-43</h1>
-    <form>
-        Search Manga <input type="text" name="title">
-        <input type="submit" value="Search">
-    </form>
+
+
+    <!-- Page Content -->
+    <div class="container">
+
+    <!-- Page Heading -->
+    <h1 class="my-4">WS 43
+        <small>A manga search engine</small>
+    </h1>   
+
+    <!-- Search Bar -->
+    <br/>
+	<div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <form class="card card-sm">
+                <div class="card-body row no-gutters align-items-center">
+                    <div class="col-auto">
+                        <i class="fas fa-search h4 text-body"></i>
+                    </div>
+                    <!--end of col-->
+                    <div class="col">
+                        <input class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search topics or keywords">
+                    </div>
+                    <!--end of col-->
+                    <div class="col-auto">
+                        <button class="btn btn-lg btn-success" type="submit">Search</button>
+                    </div>
+                    <!--end of col-->
+                </div>
+            </form>
+        </div>
+        <!--end of col-->
+    </div>
+    <br/>
 
     <div id="results">
         
     </div>
+
+    <!-- Pagination -->
+    <ul class="pagination justify-content-center">
+        <li class="page-item">
+            <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="#">1</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="#">2</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="#">3</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+            </a>
+        </li>
+    </ul>
+
+
+    <footer class="page-footer font-small bg-dark">
+
+    <!-- Copyright -->
+    <div class="footer-copyright text-center py-3">
+        <p class="m-0 text-center text-white">Copyright &copy; WS 43</p>
+    </div>
+    <!-- Copyright -->
+    
+    </footer>
+
+    </div>
+
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script
