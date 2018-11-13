@@ -17,9 +17,8 @@ function searchMALByName(name, onSuccess)
                     "volumes": manga["volumes"]
                 };
                 
-                //console.log(data);
-                mangasData.push(data);
-            });
+                mangasData[this.i] = data;
+            }.bind({i:i}));
             
             promises.push(request);
         }
