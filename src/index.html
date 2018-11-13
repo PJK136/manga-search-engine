@@ -7,6 +7,7 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="assets/styles.css">
 
     <title>WS-43</title>
@@ -17,75 +18,73 @@
     <!-- Page Content -->
     <div class="container">
 
-    <!-- Page Heading -->
-    <h1 class="my-4">WS 43</h1>
-    <h3>A manga search engine</h3>
+        <!-- Page Heading -->
+        <h1 class="my-4">WS 43</h1>
+        <h3>A manga search engine</h3>
 
 
-    <!-- Search Bar -->
-    <br/>
-	<div class="row justify-content-center">
-        <div class="col-12 col-md-10 col-lg-8">
-            <form class="card card-sm">
-                <div class="card-body row no-gutters align-items-center">
-                    <div class="col-auto">
-                        <i class="fas fa-search h4 text-body"></i>
+        <!-- Search Bar -->
+        <br/>
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                <form id="searchBar" class="border border-dark rounded" action="javascript:;" onsubmit="SearchBar.search(this)">
+                    <div class="row p-3 align-items-center">
+                        <div class="col-auto">
+                            <i class="fas fa-search h4"></i>
+                        </div>
+                        <!--end of col-->
+                        <div class="col">
+                            <input class="form-control form-control-lg form-control-borderless" type="search" name="manga-title" placeholder="Search topics or keywords">
+                        </div>
+                        <!--end of col-->
+                        <div class="col-auto">
+                            <button class="btn btn-lg btn-primary" type="submit">Search</button>
+                        </div>
+                        <!--end of col-->
                     </div>
-                    <!--end of col-->
-                    <div class="col">
-                        <input class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search topics or keywords">
-                    </div>
-                    <!--end of col-->
-                    <div class="col-auto">
-                        <button class="btn btn-lg btn-success" type="submit">Search</button>
-                    </div>
-                    <!--end of col-->
-                </div>
-            </form>
+                </form>
+            </div>
+            <!--end of col-->
         </div>
-        <!--end of col-->
-    </div>
-    <br/>
-
-    <div id="results" class="row ">
+        <br/>
         
-    </div>
+        <div id="results" class="row"></div>
 
-    <!-- Pagination -->
-    <ul class="pagination justify-content-center">
-        <li class="page-item">
-            <a class="page-link" href="#" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-            <span class="sr-only">Previous</span>
-            </a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="#">1</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="#">2</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="#">3</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="#" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-            <span class="sr-only">Next</span>
-            </a>
-        </li>
-    </ul>
+        <!-- Pagination -->
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">Previous</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+                <span class="sr-only">Next</span>
+                </a>
+            </li>
+        </ul>
 
 
-    <footer class="page-footer font-small bg-dark">
+        <footer class="page-footer font-small bg-dark">
 
-    <!-- Copyright -->
-    <div class="footer-copyright text-center py-3">
-        <p class="m-0 text-center text-white">Copyright &copy; WS 43</p>
-    </div>
-    <!-- Copyright -->
-    
-    </footer>
+            <!-- Copyright -->
+            <div class="footer-copyright text-center py-3">
+                <p class="m-0 text-center text-white">Copyright &copy; WS 43</p>
+            </div>
+            <!-- Copyright -->
+        
+        </footer>
 
     </div>
 
