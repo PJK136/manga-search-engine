@@ -7,6 +7,13 @@ var MAL = {
             var request = $.get("https://api.jikan.moe/v3/manga/"+id, manga => {
                 var authors = manga["authors"].map(a => a["name"]).join(", ");
                 var genres = manga["genres"].map(g => g["name"]).join(", ");
+                var firstPublicationDate = manga["published"]["from"];
+                var lastPublicationDate = manga["published"]["to"];
+                if (firstPublicationDate)
+                    firstPublicationDate = firstPublicationDate.substring(0,10);
+                if (lastPublicationDate)
+                    lastPublicationDate = lastPublicationDate.substring(0,10);
+                var magazine = manga["serializations"].map(m => m["name"]).join(", ");
                 
                 var data = {
                     "imageURL": manga["image_url"],
@@ -14,9 +21,11 @@ var MAL = {
                     "description": manga["synopsis"],
                     "author": authors,
                     "genres": genres,
-                    "firstPublicationDate": manga["published"]["from"],
-                    "lastPublicationDate": manga["published"]["to"],
-                    "volumes": manga["volumes"]
+                    "magazine": magazine,
+                    "first-publication-date": firstPublicationDate,
+                    "last-publication-date": lastPublicationDate,
+                    "volumes": manga["volumes"],
+                    "chapters": manga["chapters"]
                 };
                 
                 resolve(data);
@@ -27,7 +36,7 @@ var MAL = {
     searchByName : function (name, onSuccess)
     {
         $.get("https://api.jikan.moe/v3/search/manga",
-            {"q":name, "type":"manga", "rated":this.pg13, "limit":10, "page":1},
+            {"q":name, "type":"manga", "rated":MAL.pg13, "limit":9, "page":1},
             function(results) {
                 var promises = [];
                 for (var i in results["results"])

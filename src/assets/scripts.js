@@ -8,6 +8,18 @@ var SearchBar = {
 var MangaList = {
     mangaItemId: 0,
     
+    fields: {
+        "author":"Author",
+        "demographic":"Demographic",
+        "genres":"Genres",
+        "publisher":"Publisher",
+        "magazine":"Magazine",
+        "first-publication-date":"First publication",
+        "last-publication-date":"Last publication",
+        "volumes":"Volumes",
+        "chapters":"Chapters"
+    },
+    
     appendList : function(mangasData) {
         for(var i in mangasData) {
             this.append(mangasData[i]);
@@ -15,28 +27,55 @@ var MangaList = {
     },
 
     append : function(mangaData) {
-        var manga = $("<div>").load("assets/templates/manga-item.html", function() {
-            id = this.mangaItemId;
-            this.mangaItemId++;
-            
-            manga.attr("class", "manga-item card col-md-4");
-            manga.attr("id", "manga-item-" + id);
-            manga.find(".image").attr("src", mangaData["imageURL"]);
-            manga.find(".title").text(mangaData["title"]);
-            manga.find(".description").text(mangaData["description"]);
-            manga.find(".author").text(mangaData["author"]);
-            manga.find(".demographic").text(mangaData["demographic"]);
-            manga.find(".genres").text(mangaData["genres"]);
-            manga.find(".first-publication-date").text(mangaData["firstPublicationDate"]);
-            manga.find(".last-publication-date").text(mangaData["lastPublicationDate"]);
-            manga.find(".volumes").text(mangaData["volumes"]);
-            $("#results").append(manga);
-            $("#results").append("<br>");
-        });
+        id = MangaList.mangaItemId;
+        MangaList.mangaItemId++;
+        
+        var manga = $('<div class="manga-item card col-md-4">');
+        manga.attr("id", "manga-item-" + id);    
+        
+        if (mangaData["imageURL"])
+        {
+            var img = $('<img class="manga-image card-img-top">');
+            img.attr("src", mangaData["imageURL"]);
+            manga.append(img);
+        }
+        
+        var mangaBody = $('<div class="card-body">');
+        
+        var title = $('<h5 class="title card-title">');
+        title.text(mangaData["title"]);
+        mangaBody.append(title);
+        
+        var description = $('<p class="description card-text">');
+        description.text(mangaData["description"]);
+        mangaBody.append(description);
+        
+        for (var attr in MangaList.fields)
+            MangaList.appendMangaBody(mangaBody,mangaData,attr,MangaList.fields[attr]);
+        mangaBody.append($('<br><div class="text-center"><a href="#" class="btn btn-primary ">More details</a></div>'));
+        
+        manga.append(mangaBody);
+        
+        $("#results").append(manga);
+        $("#results").append("<br>");
+    },
+    
+    appendMangaBody : function(body,data,attr,name) {
+        if (data[attr])
+        {
+            var label = $("<b>");
+            label.text(name+": ");
+            var field = $("<span>");
+            field.attr("class",attr);
+            field.text(data[attr]);
+            body.append(label);
+            body.append(field);
+            body.append($("<br>"));
+        }
     },
 
     empty : function() {
-        this.mangaItemId = 0;
+        MAL.mangaItemId = 0;
         $("#results").empty();
     }
 }
