@@ -16,8 +16,8 @@ var MAL = {
                 var magazine = manga["serializations"].map(m => m["name"]).join(", ");
                 
                 var data = {
-                    "imageURL": manga["image_url"],
                     "title": manga["title"],
+                    "imageURL": manga["image_url"],
                     "description": manga["synopsis"],
                     "author": authors,
                     "genres": genres,
@@ -25,7 +25,8 @@ var MAL = {
                     "first-publication-date": firstPublicationDate,
                     "last-publication-date": lastPublicationDate,
                     "volumes": manga["volumes"],
-                    "chapters": manga["chapters"]
+                    "chapters": manga["chapters"],
+                    "source": "MyAnimeList"
                 };
                 
                 resolve(data);
@@ -33,25 +34,32 @@ var MAL = {
         });
     },
     
-    searchByName : function (name, onSuccess)
+    searchByName : function (name, forEachManga)
     {
-        $.get("https://api.jikan.moe/v3/search/manga",
-            {"q":name, "type":"manga", "rated":MAL.pg13, "limit":9, "page":1},
-            function(results) {
-                var promises = [];
-                for (var i in results["results"])
-                {
-                    var summary = results["results"][i];
-                    promises[i] = MAL.findManga(summary["mal_id"]);
-                }
-                
-                function nextPromise(i) {
-                    promises[i].then(manga => onSuccess(manga));
-                    if (i+1 < promises.length)
-                        promises[i].then(manga => nextPromise(i+1,manga));
-                }
-                
-                nextPromise(0);
+        return new Promise((resolve, reject) => {
+            $.get("https://api.jikan.moe/v3/search/manga",
+                {"q":name, "type":"manga", "rated":MAL.pg13, "limit":9, "page":1},
+                (results) => {
+                    var promises = [];
+                    for (var i in results["results"])
+                    {
+                        var summary = results["results"][i];
+                        promises[i] = MAL.findManga(summary["mal_id"]);
+                    }
+                    
+                    /* For asynchronous loading :
+                    function nextPromise(i) {
+                        promises[i].then(manga => onSuccess(manga));
+                        if (i+1 < promises.length)
+                            promises[i].then(manga => nextPromise(i+1,manga));
+                    }
+                    
+                    nextPromise(0);*/
+                    
+                    $.when.apply($, promises).then(() => {
+                        resolve(arguments);
+                    });
+            }).fail(data => reject(data));
         });
     }
-}
+};

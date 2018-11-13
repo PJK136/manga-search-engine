@@ -1,12 +1,33 @@
 var SearchBar = {
     search : function(form) {
         MangaList.empty();
-        MAL.searchByName($(form).find("[name=manga-title]").val(), MangaList.append);
+        var submitButton = $(form).find("[name=submit]");
+        submitButton.removeClass("btn-primary").addClass("btn-secondary").prop('disabled', true);
+        var mangaTitle = $(form).find("[name=manga-title]").val();
+        
+        var promises = [];
+        promises.push(SearchBar.searchWith(MAL.searchByName, mangaTitle));
+        promises.push(SearchBar.searchWith(MAL.searchByName, mangaTitle));
+        
+        Promise.all(promises).then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false));
+    },
+    
+    searchWith : function(searchEngine, mangaTitle) {
+        return new Promise((resolve, reject) => {
+            var promise = searchEngine(mangaTitle);
+            promise.then(mangaList => MangaList.appendList(mangaList));
+            promise.then(() => resolve());
+        });
     }
 }
 
 var MangaList = {
     mangaItemId: 0,
+    
+    specialFields : [
+        "title",
+        "imageURL"
+    ],
     
     fields: {
         "author":"Author",
@@ -17,7 +38,8 @@ var MangaList = {
         "first-publication-date":"First publication",
         "last-publication-date":"Last publication",
         "volumes":"Volumes",
-        "chapters":"Chapters"
+        "chapters":"Chapters",
+        "source":"Source"
     },
     
     appendList : function(mangasData) {
@@ -78,4 +100,4 @@ var MangaList = {
         MAL.mangaItemId = 0;
         $("#results").empty();
     }
-}
+};
