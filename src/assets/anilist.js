@@ -1,3 +1,9 @@
+function decodeEntities(encodedString) {
+    var textArea = document.createElement('textarea');
+    textArea.innerHTML = encodedString;
+    return textArea.value;
+}
+
 var AniList = {
     searchByName : function (name)
     {
@@ -15,7 +21,7 @@ var AniList = {
                             coverImage {
                             large
                             }
-                            description
+                            description(asHtml: false)
                             genres
                             volumes
                             chapters
@@ -38,15 +44,24 @@ var AniList = {
                        for (var i in mangas)
                        {
                            var manga = mangas[i];
+                           var description = manga["description"];
+                           if (description) {
+                               description = decodeEntities(description);
+                               description = description.replace(new RegExp("<br>", 'g'), '\n');
+                           }
+                           
                            mangaDatas.push({
-                               "title": manga["title"]["romaji"],
+                               "titleRomaji": manga["title"]["romaji"],
+                               "titleKanji": manga["title"]["native"],
+                               "titleEnglish": manga["title"]["english"],
                                "imageURL": manga["coverImage"]["large"],
-                               "description": manga["description"],
-                               "volumes": manga["volumes"],
-                               "chapters": manga["chapters"],
+                               "description": description,
+                               "numberOfColumes": manga["volumes"],
+                               "numberOfChapters": manga["chapters"],
                                "source": "AniList"
                            });
                        }
+                       
                        resolve(mangaDatas);
             });
         });

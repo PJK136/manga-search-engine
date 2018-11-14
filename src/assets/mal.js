@@ -5,27 +5,29 @@ var MAL = {
     {
         return new Promise((resolve, reject) => {
             var request = $.get("https://api.jikan.moe/v3/manga/"+id, manga => {
-                var authors = manga["authors"].map(a => a["name"]).join(", ");
-                var genres = manga["genres"].map(g => g["name"]).join(", ");
+                var authors = manga["authors"].map(a => a["name"]);
+                var genres = manga["genres"].map(g => g["name"]);
                 var firstPublicationDate = manga["published"]["from"];
                 var lastPublicationDate = manga["published"]["to"];
                 if (firstPublicationDate)
                     firstPublicationDate = firstPublicationDate.substring(0,10);
                 if (lastPublicationDate)
                     lastPublicationDate = lastPublicationDate.substring(0,10);
-                var magazine = manga["serializations"].map(m => m["name"]).join(", ");
+                var magazine = manga["serializations"].map(m => m["name"]);
                 
                 var data = {
-                    "title": manga["title"],
+                    "titleRomaji": manga["title"],
+                    "titleKanji": manga["title_japanese"],
+                    "titleEnglish": manga["title_english"],
                     "imageURL": manga["image_url"],
                     "description": manga["synopsis"],
                     "author": authors,
                     "genres": genres,
                     "magazine": magazine,
-                    "first-publication-date": firstPublicationDate,
-                    "last-publication-date": lastPublicationDate,
-                    "volumes": manga["volumes"],
-                    "chapters": manga["chapters"],
+                    "firstPublicationDate": firstPublicationDate,
+                    "lastPublicationDate": lastPublicationDate,
+                    "numberOfVolumes": manga["volumes"],
+                    "numberOfChapters": manga["chapters"],
                     "source": "MyAnimeList"
                 };
                 
