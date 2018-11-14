@@ -8,6 +8,7 @@ var SearchBar = {
         var promises = [];
         promises.push(SearchBar.searchWith(MAL.searchByName, mangaTitle));
         promises.push(SearchBar.searchWith(AniList.searchByName, mangaTitle));
+        promises.push(SearchBar.searchWith(DBPedia.searchByName, mangaTitle));
         
         Promise.all(promises).then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false));
     },
