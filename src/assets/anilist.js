@@ -14,17 +14,38 @@ var AniList = {
                         media (search: $search, type: MANGA, sort: [POPULARITY_DESC]) {
                             id
                             title {
-                            romaji
-                            english
-                            native
+                                romaji
+                                english
+                                native
                             }
                             coverImage {
-                            large
+                                large
                             }
                             description(asHtml: false)
                             genres
+                            startDate {
+                                year
+                                month
+                                day
+                            }
+                            endDate {
+                                year
+                                month
+                                day
+                            }
                             volumes
                             chapters
+                            staff {
+                                edges {
+                                    node {
+                                        name {
+                                            first
+                                            last
+                                        }
+                                    }
+                                    role
+                                }
+                            }
                         }
                     }
                 }
@@ -50,12 +71,19 @@ var AniList = {
                                description = description.replace(new RegExp("<br>", 'g'), '\n');
                            }
                            
+                           console.log(manga);
+                           var authors = manga["staff"]["edges"].map(a => a["node"]["name"]["first"] + " " + a["node"]["name"]["last"] + " (" + a["role"] + ")");
+                           
                            mangaDatas.push({
                                "titleRomaji": manga["title"]["romaji"],
                                "titleKanji": manga["title"]["native"],
                                "titleEnglish": manga["title"]["english"],
                                "imageURL": manga["coverImage"]["large"],
                                "description": description,
+                               "authors": authors,
+                               "genres": manga["genres"],
+                               "firstPublicationDate": moment(manga["startDate"]),
+                               "lastPublicationDate": moment(manga["endDate"]),
                                "numberOfColumes": manga["volumes"],
                                "numberOfChapters": manga["chapters"],
                                "source": "AniList"
@@ -63,7 +91,7 @@ var AniList = {
                        }
                        
                        resolve(mangaDatas);
-            });
+            }).fail(data => {reject(data)});
         });
     }
 };

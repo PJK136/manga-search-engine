@@ -176,6 +176,9 @@ var DBPedia = {
                         for(var i=0; i<result.length; ++i){
                             Object.keys(result[i]).forEach(function(key) {
                                 result[i][key] = DBPedia.getURILastFragment( result[i][key] );
+                                
+                                if (key == "firstPublicationDate")
+                                    result[i][key] = moment(result[i][key]);
                             });
                         }
                         

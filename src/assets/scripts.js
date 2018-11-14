@@ -114,6 +114,8 @@ var MangaList = {
             var val = data[attr];
             if (Array.isArray(val))
                 val = val.join(", ");
+            if (moment.isMoment(val))
+                val = val.format("YYYY-MM-DD");
             
             var label = $("<b>");
             label.text(name+": ");

@@ -7,13 +7,7 @@ var MAL = {
             var request = $.get("https://api.jikan.moe/v3/manga/"+id, manga => {
                 var authors = manga["authors"].map(a => a["name"]);
                 var genres = manga["genres"].map(g => g["name"]);
-                var firstPublicationDate = manga["published"]["from"];
-                var lastPublicationDate = manga["published"]["to"];
-                if (firstPublicationDate)
-                    firstPublicationDate = firstPublicationDate.substring(0,10);
-                if (lastPublicationDate)
-                    lastPublicationDate = lastPublicationDate.substring(0,10);
-                var magazine = manga["serializations"].map(m => m["name"]);
+                var magazines = manga["serializations"].map(m => m["name"]);
                 
                 var data = {
                     "titleRomaji": manga["title"],
@@ -21,11 +15,11 @@ var MAL = {
                     "titleEnglish": manga["title_english"],
                     "imageURL": manga["image_url"],
                     "description": manga["synopsis"],
-                    "author": authors,
+                    "authors": authors,
                     "genres": genres,
-                    "magazine": magazine,
-                    "firstPublicationDate": firstPublicationDate,
-                    "lastPublicationDate": lastPublicationDate,
+                    "magazines": magazines,
+                    "firstPublicationDate": moment(manga["published"]["from"]),
+                    "lastPublicationDate": moment(manga["published"]["to"]),
                     "numberOfVolumes": manga["volumes"],
                     "numberOfChapters": manga["chapters"],
                     "source": "MyAnimeList"
