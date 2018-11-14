@@ -132,11 +132,11 @@ var MangaList = {
 
 };
 
-var MoreDetails = {
-    fields = {
+// var MoreDetails = {
+//     fields: {
 
-    }
-}
+//     }
+// }
 
 // $('.dropdown-menu a').click(function(){
 //     $('#selected').text($(this).text());
