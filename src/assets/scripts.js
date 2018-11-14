@@ -84,7 +84,14 @@ var MangaList = {
         var mangaBody = $('<div class="card-body">');
         
         var title = $('<h5 class="title card-title">');
-        title.text(mangaData["titleRomaji"]);
+        var mangaTitle = undefined;
+        if (mangaData["titleEnglish"])
+            mangaTitle = mangaData["titleEnglish"];
+        else if (mangaData["titleRomaji"])
+            mangaTitle = mangaData["titleRomaji"];
+        else
+            mangaTitle = mangaData["titleKanji"];
+        title.text(mangaTitle);
         mangaBody.append(title);
         
         if (mangaData["description"])
@@ -93,18 +100,32 @@ var MangaList = {
             var description = $('<p class="description card-text">');
             if(descriptionText.length > MangaList.maxDescriptionLength){ 
                 var shortContent = descriptionText.substr(0,MangaList.maxDescriptionLength);
+                var threeDots = $('<span class="three-dots">[...]</span>');
                 var longContent = descriptionText.substr(MangaList.maxDescriptionLength);
                 var readMore = $('<a href="#" class="read-more"><br/>Read More</a>');
-                var moreText = $('<span class="more-text" style="display:none;">');
+                var moreText = $('<span class="more-text"">');
+                var readLess = $('<a href="#" class="read-less"><br/>Read Less</a>');
                 moreText.text(longContent);
+                moreText.hide();
+                readLess.hide();
+                
                 description.append(shortContent);
+                description.append(threeDots);
                 description.append(readMore)
                 description.append(moreText);
-                description.find('a.read-more').click(function(event){ 
+                description.append(readLess);
+                
+                var toggleText = function(event) {
                     event.preventDefault(); 
-                    $(this).hide(); 
-                    $(this).parents('.description').find('.more-text').show();
-                });	
+                    var parent = $(this).parents('.description');
+                    parent.find('.three-dots').toggle();
+                    parent.find('.more-text').toggle();
+                    parent.find('.read-more').toggle();
+                    parent.find('.read-less').toggle();
+                }
+                
+                description.find('a.read-more').click(toggleText);
+                description.find('a.read-less').click(toggleText);
             } else {
                 description.text(mangaData["description"]);
             }
