@@ -144,7 +144,7 @@ var DBPedia = {
     getGenres(mangaURI){
         return new Promise(
             (resolve, reject) => {
-                var query = "select * where { "  + mangaURI +  " dbp:ge00nre ?genre } ";
+                var query = "select * where { "  + mangaURI +  " dbp:genre ?genre } ";
                 
                 DBPedia.getSPARQLRequestResult(query).then(
                     result => {
@@ -164,82 +164,94 @@ var DBPedia = {
     getMangaSheet: function(mangaURI){
         return new Promise(
             (resolve, reject) => {
-                var query = "select * where { "  + mangaURI +  " dbp:jaRomaji ?titleRomaji; " + 
+                var query = "select * where { OPTIONAL { " + mangaURI + " " +
+                                                                "rdfs:label ?titleEnglish; " +
+                                                                "dbp:jaRomaji ?titleRomaji; " + 
                                                                 "dbp:jaKanji ?titleKanji; " + 
                                                                 "dbo:abstract ?description; " + 
                                                                 "dbo:numberOfVolumes ?numberOfVolumes; " + 
-                                                                "dbo:firstPublicationDate ?firstPublicationDate " +
-                                                                "FILTER(lang(?description) = 'en')} LIMIT 1";
+                                                                "dbo:firstPublicationDate ?firstPublicationDate } " +
+                                                                "FILTER((!bound(?description) || lang(?description) = 'en') && (!bound(?titleEnglish) || lang(?titleEnglish) = 'en'))} LIMIT 1";
                 
                 DBPedia.getSPARQLRequestResult(query).then(
-                    result => {
-                        for(var i=0; i<result.length; ++i){
-                            Object.keys(result[i]).forEach(function(key) {
-                                result[i][key] = DBPedia.getURILastFragment( result[i][key] );
-                                
-                                if (key == "firstPublicationDate")
-                                    result[i][key] = toMoment(result[i][key]);
-                            });
+                    results => {
+                        if (results.length <= 0)
+                        {
+                            reject(results);
+                            return;
+                        }
+
+                        var manga = results[0];
+                        var promises = [];
+                        
+                        for (var key in manga)
+                        {
+                            manga[key] = DBPedia.getURILastFragment(manga[key]);
+                            
+                            if (key == "firstPublicationDate")
+                                manga[key] = toMoment(manga[key]);
                         }
                         
-                        DBPedia.getAuthors(mangaURI).then(
+                        promises.push(DBPedia.getAuthors(mangaURI).then(
                             authorsResult => {
                                 var authors = [];
                                 for(var i=0; i<authorsResult.length; ++i){
                                     authors.push(authorsResult[i]['author']);
                                 }
                                 if(authors.length != 0)
-                                    result[0]["authors"] = authors;
+                                    manga["authors"] = authors;
                             }
-                        );
+                        ));
                         
-                        DBPedia.getMagazines(mangaURI).then(
+                        promises.push(DBPedia.getMagazines(mangaURI).then(
                             magazinesResult => {
                                 var magazines = [];
                                 for(var i=0; i<magazinesResult.length; ++i){
                                     magazines.push(magazinesResult[i]['magazine']);
                                 }
                                 if(magazines.length != 0)
-                                    result[0]["magazines"] = magazines;
+                                    manga["magazines"] = magazines;
                             }
-                        );
+                        ));
                         
-                        DBPedia.getPublishers(mangaURI).then(
+                        promises.push(DBPedia.getPublishers(mangaURI).then(
                             publishersResult => {
                                 var publishers = [];
                                 for(var i=0; i<publishersResult.length; ++i){
                                     publishers.push(publishersResult[i]['publisher']);
                                 }
                                 if(publishers.length != 0)
-                                    result[0]["publishers"] = publishers;
+                                    manga["publishers"] = publishers;
                             }
-                        );
+                        ));
                         
-                        DBPedia.getDemographics(mangaURI).then(
+                        promises.push(DBPedia.getDemographics(mangaURI).then(
                             demographicsResult => {
                                 var demographics = [];
                                 for(var i=0; i<demographicsResult.length; ++i){
                                     demographics.push(demographicsResult[i]['demographic']);
                                 }
                                 if(demographics.length != 0)
-                                    result[0]["demographics"] = demographics;
+                                    manga["demographics"] = demographics;
                             }
-                        );
+                        ));
                         
-                        DBPedia.getGenres(mangaURI).then(
+                        promises.push(DBPedia.getGenres(mangaURI).then(
                             genresResult => {
                                 var genres = [];
                                 for(var i=0; i<genresResult.length; ++i){
                                     genres.push(genresResult[i]['genre']);
                                 }
                                 if(genres.length != 0)
-                                    result[0]["genres"] = genres;
+                                    manga["genres"] = genres;
                             }
-                        );
+                        ));
                         
+                        manga["source"] = "DBPedia";
                         
-                        result[0]["source"] = "DBPedia";
-                        resolve(result[0]);
+                        $.when.apply($, promises).then(function() {    
+                            resolve(manga);
+                        });
                     }
                 );
             }
