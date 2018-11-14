@@ -15,14 +15,17 @@ function toMoment(date)
 var SearchBar = {
     search : function(form) {
         MangaList.empty();
-        var submitButton = $(form).find("[name=submit]");
+        var submitButton = $("#submit-search");
         submitButton.removeClass("btn-primary").addClass("btn-secondary").prop('disabled', true);
         var mangaTitle = $(form).find("[name=manga-title]").val();
         
         var promises = [];
-        promises.push(SearchBar.searchWith(MAL.searchByName, mangaTitle));
-        promises.push(SearchBar.searchWith(AniList.searchByName, mangaTitle));
-        promises.push(SearchBar.searchWith(DBPedia.searchByName, mangaTitle));
+        if ($("#mal-checkbox").is(":checked"))
+            promises.push(SearchBar.searchWith(MAL.searchByName, mangaTitle));
+        if ($("#anilist-checkbox").is(":checked"))
+            promises.push(SearchBar.searchWith(AniList.searchByName, mangaTitle));
+        if ($("#dbpedia-checkbox").is(":checked"))
+            promises.push(SearchBar.searchWith(DBPedia.searchByName, mangaTitle));
         
         Promise.all(promises).then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false));
     },
