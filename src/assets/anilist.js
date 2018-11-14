@@ -68,7 +68,6 @@ var AniList = {
                            var startDate = manga["startDate"]["year"] ? manga["startDate"] : null;
                            var endDate = manga["endDate"]["year"] ? manga["endDate"] : null;
                            
-                           console.log(manga);
                            var authors = manga["staff"]["edges"].map(a => a["node"]["name"]["first"] + " " + a["node"]["name"]["last"] + " (" + a["role"] + ")");
                            
                            mangaDatas.push({
