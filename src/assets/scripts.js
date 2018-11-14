@@ -1,3 +1,17 @@
+function decodeEntities(encodedString) {
+    var textArea = document.createElement('textarea');
+    textArea.innerHTML = encodedString;
+    return textArea.value;
+}
+
+function toMoment(date)
+{
+    if (date)
+        return moment(date);
+    else
+        return null;
+}
+
 var SearchBar = {
     search : function(form) {
         MangaList.empty();

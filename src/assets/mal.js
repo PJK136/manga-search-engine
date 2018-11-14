@@ -18,8 +18,8 @@ var MAL = {
                     "authors": authors,
                     "genres": genres,
                     "magazines": magazines,
-                    "firstPublicationDate": moment(manga["published"]["from"]),
-                    "lastPublicationDate": moment(manga["published"]["to"]),
+                    "firstPublicationDate": toMoment(manga["published"]["from"]),
+                    "lastPublicationDate": toMoment(manga["published"]["to"]),
                     "numberOfVolumes": manga["volumes"],
                     "numberOfChapters": manga["chapters"],
                     "source": "MyAnimeList"

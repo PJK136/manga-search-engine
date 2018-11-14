@@ -178,7 +178,7 @@ var DBPedia = {
                                 result[i][key] = DBPedia.getURILastFragment( result[i][key] );
                                 
                                 if (key == "firstPublicationDate")
-                                    result[i][key] = moment(result[i][key]);
+                                    result[i][key] = toMoment(result[i][key]);
                             });
                         }
                         
