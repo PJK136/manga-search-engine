@@ -34,7 +34,7 @@ var MAL = {
         });
     },
     
-    searchByName : function (name, forEachManga)
+    searchByName : function (name)
     {
         return new Promise((resolve, reject) => {
             $.get("https://api.jikan.moe/v3/search/manga",
@@ -56,7 +56,7 @@ var MAL = {
                     
                     nextPromise(0);*/
                     
-                    $.when.apply($, promises).then(() => {
+                    $.when.apply($, promises).then(function() {
                         resolve(arguments);
                     });
             }).fail(data => reject(data));

@@ -7,7 +7,7 @@ var SearchBar = {
         
         var promises = [];
         promises.push(SearchBar.searchWith(MAL.searchByName, mangaTitle));
-        promises.push(SearchBar.searchWith(MAL.searchByName, mangaTitle));
+        promises.push(SearchBar.searchWith(AniList.searchByName, mangaTitle));
         
         Promise.all(promises).then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false));
     },
@@ -26,7 +26,9 @@ var MangaList = {
     
     specialFields : [
         "title",
-        "imageURL"
+        "imageURL",
+        "description",
+        "description-html"
     ],
     
     fields: {
@@ -44,7 +46,7 @@ var MangaList = {
     
     appendList : function(mangasData) {
         for(var i in mangasData) {
-            this.append(mangasData[i]);
+            MangaList.append(mangasData[i]);
         }
     },
 
@@ -68,12 +70,23 @@ var MangaList = {
         title.text(mangaData["title"]);
         mangaBody.append(title);
         
-        var description = $('<p class="description card-text">');
-        description.text(mangaData["description"]);
-        mangaBody.append(description);
+        if (mangaData["description"])
+        {
+            var description = $('<p class="description card-text">');
+            description.text(mangaData["description"]);
+            mangaBody.append(description);
+        }
+        
+        if (mangaData["description-html"])
+        {
+            var description = $('<p class="description card-text">');
+            description.html(mangaData["description-html"]);
+            mangaBody.append(description);
+        }
         
         for (var attr in MangaList.fields)
             MangaList.appendMangaBody(mangaBody,mangaData,attr,MangaList.fields[attr]);
+        
         mangaBody.append($('<br><div class="text-center"><a href="#" class="btn btn-primary ">More details</a></div>'));
         
         manga.append(mangaBody);
