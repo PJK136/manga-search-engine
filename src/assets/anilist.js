@@ -41,13 +41,12 @@ var AniList = {
                            mangaDatas.push({
                                "title": manga["title"]["romaji"],
                                "imageURL": manga["coverImage"]["large"],
-                               "description-html": manga["description"],
+                               "description": manga["description"],
                                "volumes": manga["volumes"],
                                "chapters": manga["chapters"],
                                "source": "AniList"
                            });
                        }
-                       
                        resolve(mangaDatas);
             });
         });

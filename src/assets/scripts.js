@@ -23,7 +23,8 @@ var SearchBar = {
 
 var MangaList = {
     mangaItemId: 0,
-    
+    maxDescriptionLength: 150,
+
     specialFields : [
         "title",
         "imageURL",
@@ -72,8 +73,25 @@ var MangaList = {
         
         if (mangaData["description"])
         {
+            var descriptionText = mangaData["description"];
             var description = $('<p class="description card-text">');
-            description.text(mangaData["description"]);
+            if(descriptionText.length > MangaList.maxDescriptionLength){ 
+                var shortContent = descriptionText.substr(0,MangaList.maxDescriptionLength);
+                var longContent = descriptionText.substr(MangaList.maxDescriptionLength);
+                var readMore = $('<a href="#" class="read-more"><br/>Read More</a>');
+                var moreText = $('<span class="more-text" style="display:none;">');
+                moreText.text(longContent);
+                description.append(shortContent);
+                description.append(readMore)
+                description.append(moreText);
+                description.find('a.read-more').click(function(event){ 
+                    event.preventDefault(); 
+                    $(this).hide(); 
+                    $(this).parents('.description').find('.more-text').show();
+                });	
+            } else {
+                description.text(mangaData["description"]);
+            }
             mangaBody.append(description);
         }
         
