@@ -26,22 +26,23 @@ var MangaList = {
     maxDescriptionLength: 150,
 
     specialFields : [
-        "title",
+        "titleRomaji",
+        "titleKanji",
+        "titleEnglish",
         "imageURL",
         "description",
-        "description-html"
     ],
     
     fields: {
-        "author":"Author",
-        "demographic":"Demographic",
+        "authors":"Authors",
+        "demographics":"Demographics",
         "genres":"Genres",
-        "publisher":"Publisher",
-        "magazine":"Magazine",
-        "first-publication-date":"First publication",
-        "last-publication-date":"Last publication",
-        "volumes":"Volumes",
-        "chapters":"Chapters",
+        "publishers":"Publishers",
+        "magazines":"Magazines",
+        "firstPublicationDate":"First publication",
+        "lastPublicationDate":"Last publication",
+        "numberOfVolumes":"Volumes", //int
+        "numberOfChapters":"Chapters", //int
         "source":"Source"
     },
     
@@ -68,7 +69,7 @@ var MangaList = {
         var mangaBody = $('<div class="card-body">');
         
         var title = $('<h5 class="title card-title">');
-        title.text(mangaData["title"]);
+        title.text(mangaData["titleRomaji"]);
         mangaBody.append(title);
         
         if (mangaData["description"])
@@ -95,13 +96,6 @@ var MangaList = {
             mangaBody.append(description);
         }
         
-        if (mangaData["description-html"])
-        {
-            var description = $('<p class="description card-text">');
-            description.html(mangaData["description-html"]);
-            mangaBody.append(description);
-        }
-        
         for (var attr in MangaList.fields)
             MangaList.appendMangaBody(mangaBody,mangaData,attr,MangaList.fields[attr]);
         
@@ -116,11 +110,15 @@ var MangaList = {
     appendMangaBody : function(body,data,attr,name) {
         if (data[attr])
         {
+            var val = data[attr];
+            if (Array.isArray(val))
+                val = val.join(", ");
+            
             var label = $("<b>");
             label.text(name+": ");
             var field = $("<span>");
             field.attr("class",attr);
-            field.text(data[attr]);
+            field.text(val);
             body.append(label);
             body.append(field);
             body.append($("<br>"));
