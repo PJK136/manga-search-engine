@@ -19,7 +19,7 @@ var SearchBar = {
             promise.then(() => resolve());
         });
     }
-}
+};
 
 var MangaList = {
     mangaItemId: 0,
@@ -131,4 +131,15 @@ var MangaList = {
         MAL.mangaItemId = 0;
         $("#results").empty();
     }
+
 };
+
+var MoreDetails = {
+    fields = {
+
+    }
+}
+
+// $('.dropdown-menu a').click(function(){
+//     $('#selected').text($(this).text());
+// });
