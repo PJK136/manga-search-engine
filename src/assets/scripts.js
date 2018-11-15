@@ -16,23 +16,27 @@ var SearchBar = {
     search : function(form) {
         MangaList.empty();
         var submitButton = $("#submit-search");
-        submitButton.removeClass("btn-primary").addClass("btn-secondary").prop('disabled', true);
-        var mangaTitle = $(form).find("[name=manga-title]").val();
+        submitButton.removeClass("btn-primary btn-danger").addClass("btn-secondary").prop('disabled', true);
+        var query = $(form).find("[name=query]").val();
+        
+        
+        var searchType = $("#search-type").val();
         
         var promises = [];
         if ($("#mal-checkbox").is(":checked"))
-            promises.push(SearchBar.searchWith(MAL.searchByName, mangaTitle));
+            promises.push(SearchBar.searchWith(MAL[searchType], query));
         if ($("#anilist-checkbox").is(":checked"))
-            promises.push(SearchBar.searchWith(AniList.searchByName, mangaTitle));
+            promises.push(SearchBar.searchWith(AniList[searchType], query));
         if ($("#dbpedia-checkbox").is(":checked"))
-            promises.push(SearchBar.searchWith(DBPedia.searchByName, mangaTitle));
+            promises.push(SearchBar.searchWith(DBPedia[searchType], query));
         
-        Promise.all(promises).then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false));
+        Promise.all(promises).then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false))
+        .catch((error) => { console.log(error); submitButton.removeClass("btn-secondary").addClass("btn-danger").prop('disabled', false);});
     },
     
-    searchWith : function(searchEngine, mangaTitle) {
+    searchWith : function(searchEngine, query) {
         return new Promise((resolve, reject) => {
-            var promise = searchEngine(mangaTitle);
+            var promise = searchEngine(query);
             promise.then(mangaList => MangaList.appendList(mangaList));
             promise.then(() => resolve());
         });
