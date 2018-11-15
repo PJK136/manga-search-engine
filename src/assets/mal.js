@@ -30,6 +30,24 @@ var MAL = {
         });
     },
     
+    findMangasFromAuthor : function(id)
+    {
+        return new Promise((resolve, reject) => {
+            var request = $.get("https://api.jikan.moe/v3/person/"+id, author => {
+                var promises = [];
+                var published_manga = author["published_manga"];
+                for (var i in published_manga)
+                {
+                    promises.push(MAL.findManga(published_manga[i]["manga"]["mal_id"]));
+                }
+                
+                $.when.apply($, promises).then(function() {
+                    resolve(arguments);
+                });
+            }).fail(data => reject(data));
+        });
+    },
+    
     searchByName : function (name)
     {
         return MAL.searchByNameGenre(name, undefined);
@@ -66,6 +84,39 @@ var MAL = {
                         resolve(arguments);
                     });
             }).fail(data => reject(data));
+        });
+    },
+    
+    searchByAuthor: function (author)
+    {
+        return new Promise((resolve, reject) => {
+            $.get("https://api.jikan.moe/v3/search/person",
+                {"q":author, "limit":9, "page":1},
+                (results) => {
+                    var promises = [];
+                    for (var i in results["results"])
+                    {
+                        var summary = results["results"][i];
+                        promises[i] = MAL.findMangasFromAuthor(summary["mal_id"]);
+                    }
+                    
+                    $.when.apply($, promises).then(function() {
+                        var mangaDatas = [];
+                        for (var i in arguments)
+                        {
+                            for (var j in arguments[i])
+                            {
+                                mangaDatas.push(arguments[i][j]);
+                            }
+                        }
+                        resolve(mangaDatas);
+                    });
+            }).fail((jqXHR, textStatus, errorThrown) => {
+                if (jqXHR.status != 404)
+                    reject(jqXHR, textStatus, errorThrown);
+                else
+                    resolve([]);
+            });
         });
     }
 };

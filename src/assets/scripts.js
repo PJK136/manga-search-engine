@@ -30,7 +30,7 @@ var SearchBar = {
         if ($("#dbpedia-checkbox").is(":checked"))
             promises.push(SearchBar.searchWith(DBPedia[searchType], query));
         
-        Promise.all(promises).then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false))
+        $.when.apply($, promises).then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false))
         .catch((error) => { console.log(error); submitButton.removeClass("btn-secondary").addClass("btn-danger").prop('disabled', false);});
     },
     
@@ -39,6 +39,7 @@ var SearchBar = {
             var promise = searchEngine(query);
             promise.then(mangaList => MangaList.appendList(mangaList));
             promise.then(() => resolve());
+            promise.catch((error) => reject(error));
         });
     }
 };
