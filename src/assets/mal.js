@@ -32,9 +32,19 @@ var MAL = {
     
     searchByName : function (name)
     {
+        return MAL.searchByNameGenre(name, undefined);
+    },
+    
+    searchByGenre : function (genre)
+    {
+        return MAL.searchByNameGenre(undefined, genre);
+    },
+    
+    searchByNameGenre : function (name, genre)
+    {
         return new Promise((resolve, reject) => {
             $.get("https://api.jikan.moe/v3/search/manga",
-                {"q":name, "type":"manga", "rated":MAL.pg13, "limit":9, "page":1},
+                {"q":name, "genre":genre, "type":"manga", "rated":MAL.pg13, "limit":9, "page":1},
                 (results) => {
                     var promises = [];
                     for (var i in results["results"])
