@@ -64,8 +64,10 @@ var MangaList = {
         "magazines":"Magazines",
         "firstPublicationDate":"First publication",
         "lastPublicationDate":"Last publication",
-        "numberOfVolumes":"Volumes", //int
-        "numberOfChapters":"Chapters", //int
+        "numberOfVolumes":"Volumes",
+        "numberOfChapters":"Chapters",
+        "directors":"Directors",
+        "producers":"Producers",
         "source":"Source"
     },
     
