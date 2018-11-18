@@ -56,6 +56,12 @@ var MangaList = {
         "description",
     ],
     
+    titleFields: {
+        "titleRomaji":"Romaji",
+        "titleKanji":"Kanji",
+        "titleEnglish":"English"
+    },
+    
     fields: {
         "authors":"Authors",
         "demographics":"Demographics",
@@ -81,8 +87,19 @@ var MangaList = {
         id = MangaList.mangaItemId;
         MangaList.mangaItemId++;
         
-        var manga = $('<div class="manga-item card col-md-4">');
+        var manga = $('<div class="manga-item card">');
         manga.attr("id", "manga-item-" + id);    
+        
+        var title = $('<div class="card-header">');
+        var mangaTitle = undefined;
+        if (mangaData["titleEnglish"])
+            mangaTitle = mangaData["titleEnglish"];
+        else if (mangaData["titleRomaji"])
+            mangaTitle = mangaData["titleRomaji"];
+        else
+            mangaTitle = mangaData["titleKanji"];
+        title.text(mangaTitle);
+        manga.append(title);
         
         if (mangaData["imageURL"])
         {
@@ -93,16 +110,10 @@ var MangaList = {
         
         var mangaBody = $('<div class="card-body">');
         
-        var title = $('<h5 class="title card-title">');
-        var mangaTitle = undefined;
-        if (mangaData["titleEnglish"])
-            mangaTitle = mangaData["titleEnglish"];
-        else if (mangaData["titleRomaji"])
-            mangaTitle = mangaData["titleRomaji"];
-        else
-            mangaTitle = mangaData["titleKanji"];
-        title.text(mangaTitle);
-        mangaBody.append(title);
+        for (var attr in MangaList.titleFields)
+            MangaList.appendMangaBody(mangaBody,mangaData,attr,MangaList.titleFields[attr]);
+        
+        mangaBody.append($('<hr>'));
         
         if (mangaData["description"])
         {
@@ -145,9 +156,8 @@ var MangaList = {
         for (var attr in MangaList.fields)
             MangaList.appendMangaBody(mangaBody,mangaData,attr,MangaList.fields[attr]);
         
-        mangaBody.append($('<br><div class="text-center"><a href="#" class="btn btn-primary ">More details</a></div>'));
-        
         manga.append(mangaBody);
+        manga.append($('<div class="card-footer text-center"><a href="#" class="btn btn-primary ">More details</a></div>'));
         
         $("#results").append(manga);
         $("#results").append("<br>");

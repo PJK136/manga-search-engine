@@ -120,7 +120,7 @@ var DBPedia = {
                         for(var i=0; i<result.length; ++i){
                             //! if the URI has no label, we try to extract one
                             if(result[i][caracteristicType + "_label"] == undefined){
-                                result[i][caracteristicType + "_label"] = DBPedia.getURILastFragment( result[i][caracteristicType + "_URI"] );
+                                result[i][caracteristicType + "_label"] = DBPedia.getURILastFragment( result[i][caracteristicType + "_URI"] ).replace(new RegExp('_','g'),' ');
                             }
                         }
                         resolve(result);
