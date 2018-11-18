@@ -1,23 +1,28 @@
 
 
 /*
-Data Scheme    :
+Manga Object's data scheme :
 {
+    titleEnglish: "str",    
     titleRomaji: "str",
     titleKanji: "str",
-    imageURL: "url",
+    imageURL: "url",                            (unsupported)
     description : "str",
     authors: ["str", "str", ...],
     demographics: ["str", "str", ...],
     genres: ["str", "str", ...],
     publishers: ["str", "str", ...],
     magazines : ["str", "str", ...],
-    firstPublicationDate: "str",
-    lastPublicationDate: "str",
+    directors : ["str", "str", ...],            (new)
+    producers : ["str", "str", ...],            (new)
+    studios : ["str", "str", ...],              (new)
+    firstPublicationDate: moment,
+    lastPublicationDate: moment,
     numberOfVolumes: 45,
-    numberOfChapters: 405,
+    numberOfChapters: 405,                      (unsupported)
     source: "DBPedia"
 }
+
 */    
 
 
@@ -43,12 +48,12 @@ var DBPedia = {
         }
     }
 ,
-    //! get a json object which contains the result of a SPARQL request
-    //let getSPARQLRequestResult = (query) => {
-    getSPARQLRequestResult : function(query){
+    //! get a json object which contains the result of a SPARQL query
+    getSPARQLQueryResult : function(query, 
+                                      source="https://dbpedia.org/sparql"){
         return new Promise(
             (resolve, reject) => {
-                $.get("https://dbpedia.org/sparql", {"query": query, "format":"json"},  function(data) {
+                $.get(source, {"query": query, "format":"json"},  function(data) {
                     let result = Array();
                     for(var i=0; i < data["results"]["bindings"].length; ++i){
                         var elem = Object();                
@@ -64,94 +69,44 @@ var DBPedia = {
     }
 ,
 
+    //! get a Manga caracteristic which can have multiple values, like (caracteristcType) : authors, magazines, publishers, genres, demographics 
+    //! returns a json array, each element of the array contains a label and an URI of one of the results
+    //! example : { ["author_URI" : "the URI of the 1st author", "author_label": "name of the 1st author"],
+    //              ["author_URI" : "the URI of the 2nd author", "author_label": "name of the 2nd author"] }
+    getMangaCaracteristic(mangaURI, caracteristicType){
+        return new Promise(
+            (resolve, reject) => {
+                // check if we manage the caracteristic
+                if(!["author", "magazine", "publisher", "director", "producer", "studio", "demographic", "genre"].includes(caracteristicType)){
+                    result = [];
+                    resolve(result);
+                } 
 
-    getAuthors(mangaURI){
-        return new Promise(
-            (resolve, reject) => {
-                var query = "select * where { "  + mangaURI +  " dbo:author ?author } ";
+                var caracteristicURI = "?" + caracteristicType + "_URI";
+                var caracteristicLabel = "?" + caracteristicType + "_label";
+                var caracteristicPredicate = "";
                 
-                DBPedia.getSPARQLRequestResult(query).then(
+                // choose the scheme of the search according to the chosen caracteristic
+                if(["author", "magazine", "publisher"].includes(caracteristicType)) {
+                    caracteristicPredicate = "dbo:" + caracteristicType;
+                } else {
+                    caracteristicPredicate = "dbp:" + caracteristicType;
+                }
+                
+                //! select all the URIs of the chosen caracteristic & Manga, and if the URI has a label, add it to the result
+                var query = "select distinct * where { "  + mangaURI +  " " + caracteristicPredicate + " " + caracteristicURI + ". "
+                                            + " OPTIONAL{" + caracteristicURI + " rdfs:label " + caracteristicLabel + ". "
+                                                        + "FILTER(!bound(" + caracteristicLabel + ") || lang(" + caracteristicLabel + ")='en')} "
+                                            + " } ";
+                
+                //! execute the SPARQL query
+                DBPedia.getSPARQLQueryResult(query).then(
                     result => {
                         for(var i=0; i<result.length; ++i){
-                            Object.keys(result[i]).forEach(function(key) {
-                                result[i][key] = DBPedia.getURILastFragment( result[i][key] );
-                            });
-                        }
-                        resolve(result);
-                    }
-                );
-            }
-        );
-    }
-,    
-    getMagazines(mangaURI){
-        return new Promise(
-            (resolve, reject) => {
-                var query = "select * where { "  + mangaURI +  " dbo:magazine ?magazine } ";
-                
-                DBPedia.getSPARQLRequestResult(query).then(
-                    result => {
-                        for(var i=0; i<result.length; ++i){
-                            Object.keys(result[i]).forEach(function(key) {
-                                result[i][key] = DBPedia.getURILastFragment( result[i][key] );
-                            });
-                        }
-                        resolve(result);
-                    }
-                );
-            }
-        );
-    }
-,    
-    getPublishers(mangaURI){
-        return new Promise(
-            (resolve, reject) => {
-                var query = "select * where { "  + mangaURI +  " dbo:publisher ?publisher } ";
-                
-                DBPedia.getSPARQLRequestResult(query).then(
-                    result => {
-                        for(var i=0; i<result.length; ++i){
-                            Object.keys(result[i]).forEach(function(key) {
-                                result[i][key] = DBPedia.getURILastFragment( result[i][key] );
-                            });
-                        }
-                        resolve(result);
-                    }
-                );
-            }
-        );
-    }
-,    
-    getDemographics(mangaURI){
-        return new Promise(
-            (resolve, reject) => {
-                var query = "select * where { "  + mangaURI +  " dbp:demographic ?demographic } ";
-                
-                DBPedia.getSPARQLRequestResult(query).then(
-                    result => {
-                        for(var i=0; i<result.length; ++i){
-                            Object.keys(result[i]).forEach(function(key) {
-                                result[i][key] = DBPedia.getURILastFragment( result[i][key] );
-                            });
-                        }
-                        resolve(result);
-                    }
-                );
-            }
-        );
-    }
-,    
-    getGenres(mangaURI){
-        return new Promise(
-            (resolve, reject) => {
-                var query = "select * where { "  + mangaURI +  " dbp:genre ?genre } ";
-                
-                DBPedia.getSPARQLRequestResult(query).then(
-                    result => {
-                        for(var i=0; i<result.length; ++i){
-                            Object.keys(result[i]).forEach(function(key) {
-                                result[i][key] = DBPedia.getURILastFragment( result[i][key] );
-                            });
+                            //! if the URI has no label, we try to extract one
+                            if(result[i][caracteristicType + "_label"] == undefined){
+                                result[i][caracteristicType + "_label"] = DBPedia.getURILastFragment( result[i][caracteristicType + "_URI"] );
+                            }
                         }
                         resolve(result);
                     }
@@ -160,95 +115,50 @@ var DBPedia = {
         );
     }
 ,
-
-    getMangaSheet: function(mangaURI){
+    //! return a json object
+    searchByURI: function(mangaURI){
         return new Promise(
             (resolve, reject) => {
-                var query = "select * where { OPTIONAL { " + mangaURI + " " +
-                                                                "rdfs:label ?titleEnglish; " +
-                                                                "dbp:jaRomaji ?titleRomaji; " + 
-                                                                "dbp:jaKanji ?titleKanji; " + 
-                                                                "dbo:abstract ?description; " + 
-                                                                "dbo:numberOfVolumes ?numberOfVolumes; " + 
-                                                                "dbo:firstPublicationDate ?firstPublicationDate } " +
-                                                                "FILTER((!bound(?description) || lang(?description) = 'en') && (!bound(?titleEnglish) || lang(?titleEnglish) = 'en'))} LIMIT 1";
-                
-                DBPedia.getSPARQLRequestResult(query).then(
+                var query = "select * where { OPTIONAL{ " + mangaURI + " rdfs:label ?titleEnglish. }"
+                                          + " OPTIONAL{ " + mangaURI + " dbp:jaRomaji ?titleRomaji. } " 
+                                          + " OPTIONAL{ " + mangaURI + " dbp:jaKanji ?titleKanji. } "
+                                          + " OPTIONAL{ " + mangaURI + " dbo:abstract ?description. } " 
+                                          + " OPTIONAL{ " + mangaURI + " dbo:numberOfVolumes ?numberOfVolumes. } " 
+                                          + " OPTIONAL{ " + mangaURI + " dbo:firstPublicationDate ?firstPublicationDate. } "
+                                          + " OPTIONAL{ " + mangaURI + " dbp:last ?lastPublicationDate.} "
+                                                                + " FILTER( (!bound(?description)  || lang(?description)  = 'en') " 
+                                                                     + " && (!bound(?titleEnglish) || lang(?titleEnglish) = 'en') "
+                                                                        + " )} LIMIT 1";
+                DBPedia.getSPARQLQueryResult(query).then(
                     results => {
-                        if (results.length <= 0)
-                        {
+                        //! if no result
+                        /*if (results.length <= 0){
                             reject(results);
                             return;
-                        }
+                        }*/
 
                         var manga = results[0];
                         var promises = [];
-                        
-                        for (var key in manga)
-                        {
-                            manga[key] = DBPedia.getURILastFragment(manga[key]);
-                            
-                            if (key == "firstPublicationDate")
-                                manga[key] = toMoment(manga[key]);
-                        }
-                        
-                        promises.push(DBPedia.getAuthors(mangaURI).then(
-                            authorsResult => {
-                                var authors = [];
-                                for(var i=0; i<authorsResult.length; ++i){
-                                    authors.push(authorsResult[i]['author']);
+
+                        var caracteristics = ["author", "magazine", "publisher", "director", "producer", "studio", "demographic", "genre"];
+                        caracteristics.forEach(function(car){
+                            promises.push(DBPedia.getMangaCaracteristic(mangaURI, car).then(
+                                subResult => {
+                                    var values = [];
+                                    for(var i=0; i<subResult.length; ++i){
+                                        values.push(subResult[i][car + "_label"]);
+                                    }
+                                    if(values.length != 0)
+                                        manga[car+"s"] = values;
                                 }
-                                if(authors.length != 0)
-                                    manga["authors"] = authors;
-                            }
-                        ));
+                            ));
+                        });
                         
-                        promises.push(DBPedia.getMagazines(mangaURI).then(
-                            magazinesResult => {
-                                var magazines = [];
-                                for(var i=0; i<magazinesResult.length; ++i){
-                                    magazines.push(magazinesResult[i]['magazine']);
-                                }
-                                if(magazines.length != 0)
-                                    manga["magazines"] = magazines;
-                            }
-                        ));
-                        
-                        promises.push(DBPedia.getPublishers(mangaURI).then(
-                            publishersResult => {
-                                var publishers = [];
-                                for(var i=0; i<publishersResult.length; ++i){
-                                    publishers.push(publishersResult[i]['publisher']);
-                                }
-                                if(publishers.length != 0)
-                                    manga["publishers"] = publishers;
-                            }
-                        ));
-                        
-                        promises.push(DBPedia.getDemographics(mangaURI).then(
-                            demographicsResult => {
-                                var demographics = [];
-                                for(var i=0; i<demographicsResult.length; ++i){
-                                    demographics.push(demographicsResult[i]['demographic']);
-                                }
-                                if(demographics.length != 0)
-                                    manga["demographics"] = demographics;
-                            }
-                        ));
-                        
-                        promises.push(DBPedia.getGenres(mangaURI).then(
-                            genresResult => {
-                                var genres = [];
-                                for(var i=0; i<genresResult.length; ++i){
-                                    genres.push(genresResult[i]['genre']);
-                                }
-                                if(genres.length != 0)
-                                    manga["genres"] = genres;
-                            }
-                        ));
-                        
+                        if("firstPublicationDate" in manga)
+                            manga["firstPublicationDate"] = moment(manga["firstPublicationDate"]);
+                        if("lastPublicationDate" in manga)
+                            manga["lastPublicationDate"] = moment(manga["lastPublicationDate"]);
                         manga["source"] = "DBPedia";
-                        
                         $.when.apply($, promises).then(function() {    
                             resolve(manga);
                         });
@@ -258,23 +168,87 @@ var DBPedia = {
         );
     }
 ,
+    //! return a json array
     searchByName: function(mangaName){
         return new Promise(
             (resolve, reject) => {
-                var query = "select distinct ?mangaURI where { " +
-                                        "?mangaURI rdf:type dbo:Manga; " +
-                                        "rdfs:label ?m. " + 
-                                        "FILTER( IF ( contains ( lcase( str(?m)) , ' (manga)'), " +
-                                        "lcase(strbefore( str(?m), ' (manga)')) = lcase(str('" + mangaName + "')), " +
-                                        "lcase( str(?m)) = lcase(str('" + mangaName + "')))) " +
-                                        "} ";
+                var query = "select distinct ?manga where { "
+                                                      + " ?manga rdf:type dbo:Manga; "
+                                                              + " rdfs:label ?manga_label. "
+                                                                + " FILTER(lang(?manga_label) = 'en'). "
+                                                                + " BIND ( IF ( contains(lcase(str(?manga_label)),' (manga)'), strbefore(str(?manga_label), ' (manga)'), str(?manga_label)) as ?manga_name). "
+                                                                + " FILTER (regex(lcase(str(?manga_name)), lcase('" + mangaName + "') )). "
+                                                     + " } ";
                 
-                DBPedia.getSPARQLRequestResult(query).then(
+                DBPedia.getSPARQLQueryResult(query).then(
                     URIs => {
                         let promises = Array();
                         for(var i=0; i<URIs.length; ++i){
-                            var mangaURI = "<" + URIs[i]["mangaURI"] + ">";
-                            promises.push( DBPedia.getMangaSheet( mangaURI ) );
+                            var mangaURI = "<" + URIs[i]["manga"] + ">";
+                            promises.push( DBPedia.searchByURI( mangaURI ) );
+                        }
+                        $.when.apply($, promises).then(function() {
+                            resolve(arguments);
+                        });
+                    }
+                );
+            }
+        );
+    }
+,
+    //! return a json array
+    searchByAuthor: function(author){
+        return new Promise(
+            (resolve, reject) => {
+                var query = "select distinct ?manga where {  ?author_uri rdfs:label ?author_label. "
+                                                    + " ?manga dbo:author ?author_uri ."
+                                                    + " ?manga rdf:type dbo:Manga. "
+                                                    + " FILTER( regex(lcase(str(?author_label)), lcase('" + author + "') ) ). "
+                                                    + " } ";
+                
+                DBPedia.getSPARQLQueryResult(query).then(
+                    URIs => {
+                        let promises = Array();
+                        for(var i=0; i<URIs.length; ++i){
+                            var mangaURI = "<" + URIs[i]["manga"] + ">";
+                            promises.push( DBPedia.searchByURI( mangaURI ) );
+                        }
+                        $.when.apply($, promises).then(function() {
+                            resolve(arguments);
+                        });
+                    }
+                );
+            }
+        );
+    }
+,
+
+// !!!!!!!!!!!! limité à 10 résultats pour faciliter le débuggage !!!!!!!!!!!!!!!!!
+//            enlever la limite avant la version finale
+    searchByGenre: function(genre){
+        return new Promise(
+            (resolve, reject) => {
+                var query = "select distinct ?manga where { "
+                                    + " { "
+                                            + " ?manga dbp:genre ?genre. "
+                                            + " ?manga rdf:type dbo:Manga. "
+                                            + " ?genre rdfs:label ?genre_label. "
+                                            + " FILTER( regex(lcase(str(?genre_label)), lcase('" + genre + "') ) ). "
+                                    + " } "
+                                    + " UNION "
+                                    + " { "
+                                            + " ?manga dbp:genre ?genre. "
+                                            + " ?manga rdf:type dbo:Manga. "
+                                            + " FILTER( regex(lcase(str(?genre)), lcase('" + genre + "') ) ). "
+                                    + " } "
+                            + " } LIMIT 10";
+                
+                DBPedia.getSPARQLQueryResult(query).then(
+                    URIs => {
+                        let promises = Array();
+                        for(var i=0; i<URIs.length; ++i){
+                            var mangaURI = "<" + URIs[i]["manga"] + ">";
+                            promises.push( DBPedia.searchByURI( mangaURI ) );
                         }
                         $.when.apply($, promises).then(function() {
                             resolve(arguments);
@@ -288,30 +262,48 @@ var DBPedia = {
 };
 
 
+
+//! Test procedure
 $( document ).ready(function() {
     console.log( "ready!" );
 
     var mangaURI = "dbr:Fairy_Tail";
-    var mangaName = "Fairy Tail";
-
-
+    var mangaName = "fAIry tAIl";
+    var authorName = "EIICHIRO";
+    var genre = "Fantasy";
+    
+    DBPedia.searchByGenre("aDVENT").then( // limiter à 10 résultats pour l'instant
+        result => {
+            console.log(result);
+        }
+    );
+/*
     DBPedia.searchByName(mangaName).then(
         result => {
             console.log(result);
         }
     );
-
+*/
 });
     
+
     
+/*
 
+Notes pour moi-même (à supprimer avant la version finale)
 
-// genre
-// concaténer plusieurs résultatst
-// problème de hunter x hunter
+todo list:
+afficher une image
+ajouter les propriétés manquantes
+gérer le problème : pas de résultats
+enlever la limite pour searchByGenre
+
+*/
+
 
 /*
-presentation : 
+
+presentation : 10min de pres
     worklflow : ce qui appelle quoi ... etc
     fonctionnalités : 
     démo:
@@ -321,5 +313,5 @@ rapport
     capture d'écran
 le code sera à rendre 
 
-
 */
+
