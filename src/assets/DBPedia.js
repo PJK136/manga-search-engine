@@ -48,6 +48,21 @@ var DBPedia = {
         }
     }
 ,
+    //! sanitize the string to remove some special characters like ō
+    sanitizeName : function(string){
+        return string.toLowerCase()
+                     .replace(new RegExp('ā', 'g'), 'a')
+                     .replace(new RegExp('ē', 'g'), 'e')
+                     .replace(new RegExp('ī', 'g'), 'i')
+                     .replace(new RegExp('ō', 'g'), 'o')
+                     .replace(new RegExp('ū', 'g'), 'u');
+    }
+,
+    //! sanitize the sparql variable
+    sanitizeSPARQLName : function(string){
+        return "replace(replace(replace(replace(replace(lcase("+string+"),'ā','a'),'ē','e'),'ī','i'),'ō','o'),'ū','u')";
+    }
+,
     //! get a json object which contains the result of a SPARQL query
     getSPARQLQueryResult : function(query, 
                                       source="https://dbpedia.org/sparql"){
@@ -172,12 +187,13 @@ var DBPedia = {
     searchByName: function(mangaName){
         return new Promise(
             (resolve, reject) => {
+                var sanitizedName = DBPedia.sanitizeName(mangaName);
                 var query = "select distinct ?manga where { "
                                                       + " ?manga rdf:type dbo:Manga; "
                                                               + " rdfs:label ?manga_label. "
                                                                 + " FILTER(lang(?manga_label) = 'en'). "
                                                                 + " BIND ( IF ( contains(lcase(str(?manga_label)),' (manga)'), strbefore(str(?manga_label), ' (manga)'), str(?manga_label)) as ?manga_name). "
-                                                                + " FILTER (regex(lcase(str(?manga_name)), lcase('" + mangaName + "') )). "
+                                                                + " FILTER (regex("+DBPedia.sanitizeSPARQLName("str(?manga_name)")+",'" + sanitizedName + "')). "
                                                      + " } ";
                 
                 DBPedia.getSPARQLQueryResult(query).then(
@@ -200,10 +216,11 @@ var DBPedia = {
     searchByAuthor: function(author){
         return new Promise(
             (resolve, reject) => {
+                var sanitizedAuthor = DBPedia.sanitizeName(author);
                 var query = "select distinct ?manga where {  ?author_uri rdfs:label ?author_label. "
                                                     + " ?manga dbo:author ?author_uri ."
                                                     + " ?manga rdf:type dbo:Manga. "
-                                                    + " FILTER( regex(lcase(str(?author_label)), lcase('" + author + "') ) ). "
+                                                    + " FILTER( regex("+DBPedia.sanitizeSPARQLName("str(?author_label)")+", '" + sanitizedAuthor + "' ) ). "
                                                     + " } ";
                 
                 DBPedia.getSPARQLQueryResult(query).then(
@@ -228,20 +245,21 @@ var DBPedia = {
     searchByGenre: function(genre){
         return new Promise(
             (resolve, reject) => {
+                var sanitizedGenre = DBPedia.sanitizeName(genre);
                 var query = "select distinct ?manga where { "
                                     + " { "
                                             + " ?manga dbp:genre ?genre. "
                                             + " ?manga rdf:type dbo:Manga. "
                                             + " ?genre rdfs:label ?genre_label. "
-                                            + " FILTER( regex(lcase(str(?genre_label)), lcase('" + genre + "') ) ). "
+                                            + " FILTER( regex("+DBPedia.sanitizeSPARQLName("str(?genre_label)")+", '" +sanitizedGenre + "') ). "
                                     + " } "
                                     + " UNION "
                                     + " { "
                                             + " ?manga dbp:genre ?genre. "
                                             + " ?manga rdf:type dbo:Manga. "
-                                            + " FILTER( regex(lcase(str(?genre)), lcase('" + genre + "') ) ). "
+                                            + " FILTER( regex("+DBPedia.sanitizeSPARQLName("str(?genre)")+", '" + sanitizedGenre + "') ). "
                                     + " } "
-                            + " } LIMIT 10";
+                            + " } LIMIT 9";
                 
                 DBPedia.getSPARQLQueryResult(query).then(
                     URIs => {
