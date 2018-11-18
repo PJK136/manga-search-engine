@@ -39,7 +39,7 @@
                             <option value="searchByName">Manga</option>
                             <option value="searchByAuthor">Author</option>
                             <option value="searchByGenre">Genre</option>
-                            <option value="searchByMagazine">Magazine</option>
+                            <!--<option value="searchByMagazine">Magazine</option>-->
                         </select>
                     </div>
 
@@ -82,7 +82,23 @@
 
         <!-- Results -->
 
-        <div id="results" class="card-columns"></div>
+        <div id="results" style="display: none">
+            <div id="dbpedia-section" style="display: none">
+                <h3>DBPedia:</h3>
+                <div id="dbpedia-results" class="card-columns"></div>
+                <hr>
+            </div>
+            <div id="anilist-section" style="display: none">
+                <h3>AniList:</h3>
+                <div id="anilist-results" class="card-columns"></div>
+                <hr>
+            </div>
+            <div id="mal-section" style="display: none">
+                <h3>MyAnimeList:</h3>
+                <div id="mal-results" class="card-columns"></div>
+                <hr>
+            </div>
+        </div>
 
         <!-- Pagination -->
         <!-- Adding it if we want (to delete for the final version if not) -->

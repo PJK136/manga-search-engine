@@ -14,30 +14,36 @@ function toMoment(date)
 
 var SearchBar = {
     search : function(form) {
+        $("#results").show();
         MangaList.empty();
         var submitButton = $("#submit-search");
         submitButton.removeClass("btn-primary btn-danger").addClass("btn-secondary").prop('disabled', true);
         var query = $(form).find("[name=query]").val();
         
-        
         var searchType = $("#search-type").val();
         
         var promises = [];
-        if ($("#mal-checkbox").is(":checked"))
-            promises.push(SearchBar.searchWith(MAL[searchType], query));
-        if ($("#anilist-checkbox").is(":checked"))
-            promises.push(SearchBar.searchWith(AniList[searchType], query));
-        if ($("#dbpedia-checkbox").is(":checked"))
-            promises.push(SearchBar.searchWith(DBPedia[searchType], query));
+        if ($("#dbpedia-checkbox").is(":checked")) {
+            $("#dbpedia-section").show();
+            promises.push(SearchBar.searchWith(DBPedia[searchType], query, "dbpedia-results"));
+        }
+        if ($("#anilist-checkbox").is(":checked")) {
+            $("#anilist-section").show();
+            promises.push(SearchBar.searchWith(AniList[searchType], query, "anilist-results"));
+        }
+        if ($("#mal-checkbox").is(":checked")) {
+            $("#mal-section").show();
+            promises.push(SearchBar.searchWith(MAL[searchType], query, "mal-results"));
+        }
         
         $.when.apply($, promises).then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false))
         .catch((error) => { console.log(error); submitButton.removeClass("btn-secondary").addClass("btn-danger").prop('disabled', false);});
     },
     
-    searchWith : function(searchEngine, query) {
+    searchWith : function(searchEngine, query, resultDivId) {
         return new Promise((resolve, reject) => {
             var promise = searchEngine(query);
-            promise.then(mangaList => MangaList.appendList(mangaList));
+            promise.then(mangaList => MangaList.appendList(resultDivId, mangaList));
             promise.then(() => resolve());
             promise.catch((error) => reject(error));
         });
@@ -77,13 +83,13 @@ var MangaList = {
         "source":"Source"
     },
     
-    appendList : function(mangasData) {
+    appendList : function(divId, mangasData) {
         for(var i in mangasData) {
-            MangaList.append(mangasData[i]);
+            MangaList.append(divId, mangasData[i]);
         }
     },
 
-    append : function(mangaData) {
+    append : function(divId, mangaData) {
         id = MangaList.mangaItemId;
         MangaList.mangaItemId++;
         
@@ -159,8 +165,8 @@ var MangaList = {
         manga.append(mangaBody);
         manga.append($('<div class="card-footer text-center"><a href="#" class="btn btn-primary ">More details</a></div>'));
         
-        $("#results").append(manga);
-        $("#results").append("<br>");
+        $("#"+divId).append(manga);
+        $("#"+divId).append("<br>");
     },
     
     appendMangaBody : function(body,data,attr,name) {
@@ -185,7 +191,12 @@ var MangaList = {
 
     empty : function() {
         MAL.mangaItemId = 0;
-        $("#results").empty();
+        $("#dbpedia-section").hide();
+        $("#dbpedia-results").empty();
+        $("#anilist-section").hide();
+        $("#anilist-results").empty();
+        $("#mal-section").hide();
+        $("#mal-results").empty();
     }
 
 };
