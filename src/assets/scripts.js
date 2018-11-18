@@ -74,12 +74,12 @@ var MangaList = {
         "genres":"Genres",
         "publishers":"Publishers",
         "magazines":"Magazines",
+        "status":"Status",
         "firstPublicationDate":"First publication",
         "lastPublicationDate":"Last publication",
         "numberOfVolumes":"Volumes",
         "numberOfChapters":"Chapters",
-        "directors":"Directors",
-        "producers":"Producers",
+        "score":"Score (/10)",
         "source":"Source"
     },
     
@@ -181,6 +181,12 @@ var MangaList = {
             var label = $("<b>");
             label.text(name+": ");
             var field = $("<span>");
+            if (attr == "source" && data["sourceURL"])
+            {
+                field = $("<a>");
+                field.attr("href",data["sourceURL"]);
+            }
+                
             field.attr("class",attr);
             field.text(val);
             body.append(label);

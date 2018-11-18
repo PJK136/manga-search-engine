@@ -78,6 +78,8 @@ var AniList = {
             
             var authors = manga["staff"]["edges"].map(a => a["node"]["name"]["first"] + " " + a["node"]["name"]["last"] + " (" + a["role"] + ")");
             
+            var status = manga["status"].charAt(0).toUpperCase() + manga["status"].slice(1).toLowerCase();
+            
             mangaDatas.push({
                 "titleRomaji": manga["title"]["romaji"],
                 "titleKanji": manga["title"]["native"],
@@ -86,11 +88,14 @@ var AniList = {
                 "description": description,
                 "authors": authors,
                 "genres": manga["genres"],
+                "status": status,
+                "score": manga["averageScore"]/10.,
                 "firstPublicationDate": toMoment(startDate),
                 "lastPublicationDate": toMoment(endDate),
                 "numberOfColumes": manga["volumes"],
                 "numberOfChapters": manga["chapters"],
-                "source": "AniList"
+                "source": "AniList",
+                "sourceURL": manga["siteUrl"]
             });
         }
         
@@ -120,8 +125,11 @@ AniList.coreQuery = `
         month
         day
     }
+    status
+    averageScore
     volumes
     chapters
+    siteUrl
     staff {
         edges {
             node {
