@@ -174,6 +174,7 @@ var DBPedia = {
                         if("lastPublicationDate" in manga)
                             manga["lastPublicationDate"] = moment(manga["lastPublicationDate"]);
                         manga["source"] = "DBPedia";
+                        manga["sourceURL"] = mangaURI.slice(1,-1);
                         $.when.apply($, promises).then(function() {    
                             resolve(manga);
                         });
