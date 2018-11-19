@@ -166,7 +166,6 @@ var MangaList = {
             MangaList.appendMangaBody(mangaBody,mangaData,attr,MangaList.fields[attr]);
         
         manga.append(mangaBody);
-        manga.append($('<div class="card-footer text-center"><a href="#" class="btn btn-primary ">More details</a></div>'));
         
         $("#"+divId).append(manga);
         $("#"+divId).append("<br>");
