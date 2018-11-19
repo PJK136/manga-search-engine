@@ -90,6 +90,9 @@ var MangaList = {
     },
 
     append : function(divId, mangaData) {
+        if (mangaData["genres"].indexOf("Hentai") >= 0)
+            return;
+        
         id = MangaList.mangaItemId;
         MangaList.mangaItemId++;
         
