@@ -39,14 +39,14 @@ var MAL = {
             var request = $.get("https://api.jikan.moe/v3/person/"+id, author => {
                 var promises = [];
                 var published_manga = author["published_manga"];
+                
+                var mangaIds = [];
                 for (var i in published_manga)
                 {
-                    promises.push(MAL.findManga(published_manga[i]["manga"]["mal_id"]));
+                    mangaIds.push(published_manga[i]["manga"]["mal_id"]);
                 }
                 
-                $.when.apply($, promises).then(function() {
-                    resolve(arguments);
-                });
+                resolve(mangaIds);
             }).fail(data => reject(data));
         });
     },
@@ -104,15 +104,26 @@ var MAL = {
                     }
                     
                     $.when.apply($, promises).then(function() {
-                        var mangaDatas = [];
+                        var promises2 = []
+                        
                         for (var i in arguments)
                         {
                             for (var j in arguments[i])
                             {
-                                mangaDatas.push(arguments[i][j]);
+                                if (promises2.length >= 9)
+                                    break;
+                                
+                                promises2.push(MAL.findManga(arguments[i][j]));
                             }
                         }
-                        resolve(mangaDatas);
+                        
+                        $.when.apply($, promises2).then(function() {
+                            var mangaDatas = [];
+                            for (var i in arguments)
+                                mangaDatas.push(arguments[i]);
+
+                            resolve(mangaDatas);
+                        });
                     });
             }).fail((jqXHR, textStatus, errorThrown) => {
                 if (jqXHR.status != 404)
