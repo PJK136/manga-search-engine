@@ -28,6 +28,9 @@ Manga Object's data scheme :
 
 
 var DBPedia = {
+    //! the maximum number of mangas we can find by a search
+    MAX_RESULTS_LENGTH : 9
+,
     //! check if a string is a valid URL
     isValidURL : function(string) {
         try {
@@ -195,7 +198,7 @@ var DBPedia = {
                                                                 + " FILTER(lang(?manga_label) = 'en'). "
                                                                 + " BIND ( IF ( contains(lcase(str(?manga_label)),' (manga)'), strbefore(str(?manga_label), ' (manga)'), str(?manga_label)) as ?manga_name). "
                                                                 + " FILTER (regex("+DBPedia.sanitizeSPARQLName("str(?manga_name)")+",'" + sanitizedName + "')). "
-                                                     + " } ";
+                                                     + " } LIMIT " + DBPedia.MAX_RESULTS_LENGTH ;
                 
                 DBPedia.getSPARQLQueryResult(query).then(
                     URIs => {
@@ -222,7 +225,7 @@ var DBPedia = {
                                                     + " ?manga dbo:author ?author_uri ."
                                                     + " ?manga rdf:type dbo:Manga. "
                                                     + " FILTER( regex("+DBPedia.sanitizeSPARQLName("str(?author_label)")+", '" + sanitizedAuthor + "' ) ). "
-                                                    + " } ";
+                                                    + " } LIMIT " + DBPedia.MAX_RESULTS_LENGTH ;
                 
                 DBPedia.getSPARQLQueryResult(query).then(
                     URIs => {
@@ -241,8 +244,7 @@ var DBPedia = {
     }
 ,
 
-// !!!!!!!!!!!! limité à 10 résultats pour faciliter le débuggage !!!!!!!!!!!!!!!!!
-//            enlever la limite avant la version finale
+    //! return a json array
     searchByGenre: function(genre){
         return new Promise(
             (resolve, reject) => {
@@ -260,7 +262,7 @@ var DBPedia = {
                                             + " ?manga rdf:type dbo:Manga. "
                                             + " FILTER( regex("+DBPedia.sanitizeSPARQLName("str(?genre)")+", '" + sanitizedGenre + "') ). "
                                     + " } "
-                            + " } LIMIT 9";
+                            + " } LIMIT " + DBPedia.MAX_RESULTS_LENGTH ;
                 
                 DBPedia.getSPARQLQueryResult(query).then(
                     URIs => {
@@ -281,56 +283,4 @@ var DBPedia = {
 };
 
 
-
-//! Test procedure
-$( document ).ready(function() {
-    console.log( "ready!" );
-
-    var mangaURI = "dbr:Fairy_Tail";
-    var mangaName = "fAIry tAIl";
-    var authorName = "EIICHIRO";
-    var genre = "Fantasy";
-    
-    DBPedia.searchByGenre("aDVENT").then( // limiter à 10 résultats pour l'instant
-        result => {
-            console.log(result);
-        }
-    );
-/*
-    DBPedia.searchByName(mangaName).then(
-        result => {
-            console.log(result);
-        }
-    );
-*/
-});
-    
-
-    
-/*
-
-Notes pour moi-même (à supprimer avant la version finale)
-
-todo list:
-afficher une image
-ajouter les propriétés manquantes
-gérer le problème : pas de résultats
-enlever la limite pour searchByGenre
-
-*/
-
-
-/*
-
-presentation : 10min de pres
-    worklflow : ce qui appelle quoi ... etc
-    fonctionnalités : 
-    démo:
-rapport
-    worklflow
-    fonctionnalités
-    capture d'écran
-le code sera à rendre 
-
-*/
 
