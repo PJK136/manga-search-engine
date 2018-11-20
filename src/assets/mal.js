@@ -1,6 +1,8 @@
 var MAL = {
     pg13:3,
     
+    genres: ["", "Action", "Adventure", "Cars", "Comedy", "Dementia", "Demons", "Mystery", "Drama", "Ecchi", "Fantasy", "Game", "Hentai", "Historical", "Horror", "Kids", "Magic", "Martial Arts", "Mecha", "Music", "Parody", "Samurai", "Romance", "School", "Sci Fi", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Space", "Sports", "Super Power", "Vampire", "Yaoi", "Yuri", "Harem", "Slice of Life", "Supernatural", "Military", "Police", "Psychological", "Thriller", "Seinen", "Josei", "Doujinshi", "Gender Bender"],
+    
     findManga : function(id)
     {
         return new Promise((resolve, reject) => {
@@ -58,7 +60,10 @@ var MAL = {
     
     searchByGenre : function (genre)
     {
-        return MAL.searchByNameGenre(undefined, genre);
+        var indexGenre = MAL.genres.indexOf(genre);
+        if (indexGenre < 0)
+            indexGenre = undefined;
+        return MAL.searchByNameGenre(undefined, indexGenre);
     },
     
     searchByNameGenre : function (name, genre)
