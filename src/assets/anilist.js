@@ -1,4 +1,6 @@
 var AniList = {
+    MAX_RESULTS_LENGTH: 9,
+    
     searchByName : function (name)
     {
         return AniList.searchByNameGenre(name, undefined);
@@ -15,7 +17,7 @@ var AniList = {
             search: name,
             genre: genre,
             page: 1,
-            perPage: 9
+            perPage: 50
         };
 
         return new Promise((resolve, reject) => {
@@ -23,6 +25,23 @@ var AniList = {
                    {query: AniList.queryByNameGenre, variables: variables},
                    (data) => {
                        var mangas = data["data"]["Page"]["media"];
+                       
+                       if (name)
+                       {
+                           mangas.sort((a,b) => {
+                                if ((a["title"]["romaji"] == name || a["title"]["native"] == name || a["title"]["english"] == name) &&
+                                    (b["title"]["romaji"] != name && b["title"]["native"] != name && b["title"]["english"] != name))
+                                    return -1;
+                                if ((a["title"]["romaji"] != name && a["title"]["native"] != name && a["title"]["english"] != name) &&
+                                    (b["title"]["romaji"] == name || b["title"]["native"] == name || b["title"]["english"] == name))
+                                    return 1;
+                                
+                                return b["popularity"] - a["popularity"];
+                           });
+                       }
+                       
+                       mangas = mangas.slice(0, AniList.MAX_RESULTS_LENGTH);
+                       
                        resolve(AniList.convertMangas(mangas));
             }).fail(data => {reject(data)});
         });
@@ -63,6 +82,8 @@ var AniList = {
                            
                            return b["popularity"] - a["popularity"];
                        });
+                       
+                       mangas = mangas.slice(0, AniList.MAX_RESULTS_LENGTH);
                        
                        resolve(AniList.convertMangas(mangas));
             }).fail(data => {reject(data)});
@@ -146,6 +167,7 @@ AniList.coreQuery = `
     volumes
     chapters
     siteUrl
+    popularity
     staff {
         edges {
             node {
@@ -180,9 +202,7 @@ AniList.queryByAuthor = `
                 staffMedia (type: MANGA, sort: [POPULARITY_DESC], page: $page, perPage: $perPage) {
                     nodes {` +
                     AniList.coreQuery +
-                    `
-                    popularity
-                    }
+                    `}
                 }
             }
         }

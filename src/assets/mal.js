@@ -1,5 +1,5 @@
 var MAL = {
-    pg13:3,
+    MAX_RESULTS_LENGTH: 9,
     
     genres: ["", "Action", "Adventure", "Cars", "Comedy", "Dementia", "Demons", "Mystery", "Drama", "Ecchi", "Fantasy", "Game", "Hentai", "Historical", "Horror", "Kids", "Magic", "Martial Arts", "Mecha", "Music", "Parody", "Samurai", "Romance", "School", "Sci Fi", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Space", "Sports", "Super Power", "Vampire", "Yaoi", "Yuri", "Harem", "Slice of Life", "Supernatural", "Military", "Police", "Psychological", "Thriller", "Seinen", "Josei", "Doujinshi", "Gender Bender"].map((value) => value.toLowerCase()),
     
@@ -70,7 +70,7 @@ var MAL = {
     {
         return new Promise((resolve, reject) => {
             $.get("https://api.jikan.moe/v3/search/manga",
-                {"q":name, "genre":genre, "type":"manga", "rated":MAL.pg13, "limit":9, "page":1},
+                {"q":name, "genre":genre, "type":"manga", "limit":MAL.MAX_RESULTS_LENGTH, "page":1},
                 (results) => {
                     var promises = [];
                     for (var i in results["results"])
@@ -115,7 +115,7 @@ var MAL = {
                         {
                             for (var j in arguments[i])
                             {
-                                if (promises2.length >= 9)
+                                if (promises2.length >= MAL.MAX_RESULTS_LENGTH)
                                     break;
                                 
                                 promises2.push(MAL.findManga(arguments[i][j]));
