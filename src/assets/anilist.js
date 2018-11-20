@@ -40,15 +40,31 @@ var AniList = {
             $.post('https://graphql.anilist.co',
                    {query: AniList.queryByAuthor, variables: variables},
                    (data) => {
-                       var mangaDatas = [];
+                       var mangas = [];
                        var staffs = data["data"]["Page"]["staff"];
                        for (var i in staffs)
                        {
-                           var mangas = staffs[i]["staffMedia"]["nodes"];
-                            Array.prototype.push.apply(mangaDatas,AniList.convertMangas(mangas));
+                           for (var j in staffs[i]["staffMedia"]["nodes"])
+                           {
+                               var manga = staffs[i]["staffMedia"]["nodes"][j];
+                               manga["_authorFirstname"] = staffs[i]["name"]["first"];
+                               manga["_authorLastname"] =  staffs[i]["name"]["last"];
+                               mangas.push(manga);
+                           }
                        }
                        
-                       resolve(mangaDatas);
+                       mangas.sort((a,b) => {
+                           if ((a["_authorFirstname"] == author || a["_authorLastname"] == author) &&
+                               (b["_authorFirstname"] != author && b["_authorLastname"] != author))
+                               return -1;
+                           if ((a["_authorFirstname"] != author && a["_authorLastname"] != author) &&
+                               (b["_authorFirstname"] == author || b["_authorLastname"] == author))
+                               return 1;
+                           
+                           return b["popularity"] - a["popularity"];
+                       });
+                       
+                       resolve(AniList.convertMangas(mangas));
             }).fail(data => {reject(data)});
         });
     },
@@ -146,7 +162,7 @@ AniList.coreQuery = `
 AniList.queryByNameGenre = `
     query ($search: String, $genre: String, $page: Int, $perPage: Int) {
         Page (page: $page, perPage: $perPage) {
-            media (search: $search, genre: $genre, type: MANGA, sort: [POPULARITY_DESC]) {` +
+            media (search: $search, genre: $genre, type: MANGA, sort: [SEARCH_MATCH, POPULARITY_DESC]) {` +
                 AniList.coreQuery +
             `}
         }
@@ -155,12 +171,18 @@ AniList.queryByNameGenre = `
 
 AniList.queryByAuthor = `
     query ($search: String, $page: Int, $perPage: Int) {
-        Page (page: $page, perPage: $perPage) {
+        Page (page: 1, perPage: 50) {
             staff (search: $search, sort: [SEARCH_MATCH]) {
+                name {
+                    first
+                    last
+                }
                 staffMedia (type: MANGA, sort: [POPULARITY_DESC], page: $page, perPage: $perPage) {
                     nodes {` +
                     AniList.coreQuery +
-                    `}
+                    `
+                    popularity
+                    }
                 }
             }
         }
