@@ -79,7 +79,7 @@ var MangaList = {
         "lastPublicationDate":"Last publication",
         "numberOfVolumes":"Volumes",
         "numberOfChapters":"Chapters",
-        "score":"Score (/10)",
+        "score":"Score",
         "source":"Source"
     },
     

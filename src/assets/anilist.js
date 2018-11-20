@@ -89,7 +89,7 @@ var AniList = {
                 "authors": authors,
                 "genres": manga["genres"],
                 "status": status,
-                "score": manga["averageScore"]/10.,
+                "score": manga["averageScore"]/10.+"/10",
                 "firstPublicationDate": toMoment(startDate),
                 "lastPublicationDate": toMoment(endDate),
                 "numberOfColumes": manga["volumes"],

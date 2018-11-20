@@ -19,7 +19,7 @@ var MAL = {
                     "genres": genres,
                     "magazines": magazines,
                     "status": manga["status"],
-                    "score": manga["score"],
+                    "score": manga["score"]+"/10",
                     "firstPublicationDate": toMoment(manga["published"]["from"]),
                     "lastPublicationDate": toMoment(manga["published"]["to"]),
                     "numberOfVolumes": manga["volumes"],
