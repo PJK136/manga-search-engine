@@ -27,7 +27,7 @@
         <br/>
         <div class="row justify-content-center ">
             <div class="col-12 col-md-10 col-lg-8">
-                <form id="searchBar" class="border border-dark rounded" action="javascript:;" onsubmit="SearchBar.search(this)">
+                <form class="border border-dark rounded" action="javascript:;" onsubmit="SearchBar.search(this)">
                     <div class="row p-3 align-items-center">
                     <div class="col-auto">
                         <i class="fas fa-search h4 col-auto"></i>
@@ -35,7 +35,7 @@
                     <!--end of col-->
 
                     <div class="col-auto">
-                        <select class="form-control" id="search-type">
+                        <select class="form-control" id="search-type" onchange="DBPedia.loadAutoCompletion()">
                             <option value="searchByName">Manga</option>
                             <option value="searchByAuthor">Author</option>
                             <option value="searchByGenre">Genre</option>
@@ -44,7 +44,8 @@
                     </div>
 
                     <div class="col">
-                        <input class="form-control form-control-lg" type="search" name="query" placeholder="Search topics or keywords">
+                        <input id="searchBar" list="autocomplete" class="form-control form-control-lg" type="search" name="query" placeholder="Search topics or keywords">
+                        <datalist id="autocomplete"></datalist>
                     </div>
                     <!--end of col-->
                     <div class="col-auto">
