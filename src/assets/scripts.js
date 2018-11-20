@@ -96,7 +96,7 @@ var MangaList = {
         id = MangaList.mangaItemId;
         MangaList.mangaItemId++;
         
-        var manga = $('<div class="manga-item card">');
+        var manga = $('<div class="manga-item card h-100">');
         manga.attr("id", "manga-item-" + id);    
         
         var title = $('<div class="card-header">');
@@ -167,7 +167,10 @@ var MangaList = {
         
         manga.append(mangaBody);
         
-        $("#"+divId).append(manga);
+        var column = $('<div class="col-4 mb-4">');
+        column.append(manga);
+        
+        $("#"+divId).append(column);
         $("#"+divId).append("<br>");
     },
     
