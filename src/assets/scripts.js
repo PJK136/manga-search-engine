@@ -90,7 +90,7 @@ var MangaList = {
     },
 
     append : function(divId, mangaData) {
-        if (mangaData["genres"] && mangaData["genres"].indexOf("Hentai") >= 0)
+        if (!$("#18-checkbox").is(":checked") && mangaData["genres"] && mangaData["genres"].indexOf("Hentai") >= 0)
             return;
         
         id = MangaList.mangaItemId;
