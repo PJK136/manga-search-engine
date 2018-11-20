@@ -137,19 +137,16 @@ var DBPedia = {
     searchByURI: function(mangaURI){
         return new Promise(
             (resolve, reject) => {
-                var query = "select * where { OPTIONAL{ " + mangaURI + " rdfs:label ?titleEnglish. } "
+                var query = "select * where { OPTIONAL{ " + mangaURI + " rdfs:label ?titleEnglish. "
+                                                              + " FILTER( lang(?titleEnglish) = 'en' )} "
                                           + " OPTIONAL{ " + mangaURI + " dbp:jaRomaji ?titleRomaji. } " 
                                           + " OPTIONAL{ " + mangaURI + " dbp:jaKanji ?titleKanji. } "
-                                          + " OPTIONAL{ " + mangaURI + " dbo:abstract ?description. } " 
+                                          + " OPTIONAL{ " + mangaURI + " dbo:abstract ?description. "
+                                                              + " FILTER( lang(?description)  = 'en') } " 
                                           + " OPTIONAL{ " + mangaURI + " dbo:numberOfVolumes ?numberOfVolumes. } " 
                                           + " OPTIONAL{ " + mangaURI + " dbo:firstPublicationDate ?firstPublicationDate. } "
-                                          + " OPTIONAL{ " + mangaURI + " dbp:last ?lastPublicationDate.} "
-                                                                + " FILTER( (!bound(?description)  || lang(?description)  = 'en') " 
-                                                                     + " && (!bound(?titleEnglish) || lang(?titleEnglish) = 'en') "
-                                                                     + " && (!bound(?firstPublicationDate) || datatype(?firstPublicationDate) = xsd:date) " 
-                                                                     + " && (!bound(?lastPublicationDate)  || datatype(?lastPublicationDate) = xsd:date) " 
-                                                                        + " )} LIMIT 1";
-
+                                          + " OPTIONAL{ " + mangaURI + " dbp:last ?lastPublicationDate. } "
+                                                                        + " } LIMIT 1";
                 DBPedia.getSPARQLQueryResult(query).then(
                     results => {
                         //! if no result
@@ -157,13 +154,8 @@ var DBPedia = {
                             reject(results);
                             return;
                         }*/
-console.log(results);
 
                         var manga = results[0];
-
-if(results[0] == undefined)
-    reject("error");
-
                         var promises = [];
 
                         var caracteristics = ["author", "magazine", "publisher", "director", "producer", "studio", "demographic", "genre"];
@@ -174,7 +166,7 @@ if(results[0] == undefined)
                                     for(var i=0; i<subResult.length; ++i){
                                         values.push(subResult[i][car + "_label"]);
                                     }
-                                    if(values.length != 0 && manga !=undefined)
+                                    if(values.length != 0 )
                                         manga[car+"s"] = values;
                                 }
                             ));
@@ -202,10 +194,10 @@ if(results[0] == undefined)
                 var sanitizedName = DBPedia.sanitizeName(mangaName);
                 var query = "select distinct ?manga where { "
                                                       + " ?manga rdf:type dbo:Manga; "
-                                                              + " rdfs:label ?manga_label. "
+                                                             + " rdfs:label ?manga_label. "
                                                                 + " FILTER(lang(?manga_label) = 'en'). "
                                                                 + " BIND ( IF ( contains(lcase(str(?manga_label)),' (manga)'), strbefore(str(?manga_label), ' (manga)'), str(?manga_label)) as ?manga_name). "
-                                                                + " FILTER (regex(" + DBPedia.sanitizeSPARQLName("str(?manga_name)") + ",'" + sanitizedName + "')). "
+                                                                + " FILTER (regex("+DBPedia.sanitizeSPARQLName("str(?manga_name)")+",'" + sanitizedName + "')). "
                                                      + " } LIMIT " + DBPedia.MAX_RESULTS_LENGTH ;
                 
                 DBPedia.getSPARQLQueryResult(query).then(
@@ -268,10 +260,17 @@ if(results[0] == undefined)
                                     + " { "
                                             + " ?manga dbp:genre ?genre. "
                                             + " ?manga rdf:type dbo:Manga. "
-                                            + " FILTER( regex("+DBPedia.sanitizeSPARQLName("str(?genre)")+", '" + sanitizedGenre + "') ). "
+                                            + " FILTER(isLiteral(?genre) && regex("+DBPedia.sanitizeSPARQLName("str(?genre)")+", '" + sanitizedGenre + "') ). "
                                     + " } "
+                                    + " UNION "
+                                    + " { "
+                                            + " ?manga dbp:demographic ?genre. "
+                                            + " ?manga rdf:type dbo:Manga. "
+                                            + " FILTER(regex("+DBPedia.sanitizeSPARQLName("str(?genre)")+", '" + sanitizedGenre + "') ). "
+                                    + " } "
+                                    //+ "FILTER(lang(?label) = 'en' )"
                             + " } LIMIT " + DBPedia.MAX_RESULTS_LENGTH ;
-                
+
                 DBPedia.getSPARQLQueryResult(query).then(
                     URIs => {
                         let promises = Array();
@@ -299,10 +298,10 @@ if(results[0] == undefined)
                 switch(TypeSelector.value){
                     case "searchByName":
                         query = "select distinct ?label where { "
-                                                                 + " ?manga rdf:type dbo:Manga; "
-                                                                 + " rdfs:label ?label. "
-                                                                 + " FILTER(lang(?label) = 'en'). "
-                                                            + " } ";
+                                                        + " ?manga rdf:type dbo:Manga; "
+                                                        + " rdfs:label ?label. "
+                                                        + " FILTER(lang(?label) = 'en'). "
+                                                + " } ";
                         break;
                     case "searchByAuthor":
                         query = "select distinct ?label where { "
@@ -313,42 +312,40 @@ if(results[0] == undefined)
                                                 + " } ";
                         break;
                     case "searchByGenre":
-                        query = "select distinct ?label where { "
-                                            + " { " 
-                                                    + " ?manga dbp:genre ?genre. "
-                                                    + " ?manga rdf:type dbo:Manga. "
-                                                    + " ?genre rdfs:label ?label. "
-                                            + " } "
-                                            + " UNION "
-                                            + " { "
-                                                   + " ?manga dbp:genre ?label. "
-                                                   + " ?manga rdf:type dbo:Manga. "
-                                            + " } "
-                                            + " FILTER(lang(?label) = 'en'). "
-                                    + " } ";
+                        query = ` select distinct ?label where {
+                                    {
+                                       ?manga dbp:genre ?genre.
+                                       ?manga rdf:type dbo:Manga.
+                                       ?genre rdfs:label ?label.
+                                    }
+                                    UNION
+                                    {
+                                       ?manga dbp:genre ?label.
+                                       ?manga rdf:type dbo:Manga.
+                                        FILTER(isLiteral(?label)).
+                                    }
+                                    UNION
+                                    {
+                                        ?manga dbp:demographic ?demo.
+                                        ?manga rdf:type dbo:Manga.
+                                        ?demo rdfs:label ?label.
+                                    }
+                                    FILTER(lang(?label) = "en" )
+                                } `;
                         break;
                 }
 
                 DBPedia.getSPARQLQueryResult(query).then(
                     labels => {
-
-                        
-
                         var dataList = document.getElementById("autocomplete");
                         var content = "";
-                        //var content = [];
 
                         for(var i=0; i<labels.length; ++i){
                             content += "<option value='" + labels[i]["label"] + "'>";
-                            //content.push(labels[i]["label"]);                      
                         }
 
-  /*                      $( "#searchBar" ).autocomplete({
-                            source: content,
-                            minLength: 4
-                        });
-*/
                         dataList.innerHTML = content;
+                        console.log("datalist loaded !");
                         resolve(content);
                     }
                 );        
@@ -360,19 +357,7 @@ if(results[0] == undefined)
 
 
 $( document ).ready(function() {
-    DBPedia.loadAutoCompletion().then( result => { console.log("datalist loaded !"); } );
-
-    var mangaURI = "dbr:Fairy_Tail";
-    var mangaName = "fAIry tAI";
-    var authorName = "EIICHIRO";
-    var genre = "Fantasy";
-    
-    DBPedia.searchByName(mangaName).then(
-        result => {
-            console.log(result);
-        }
-    );
-
+    DBPedia.loadAutoCompletion().then( result => {  } );
 });
 
 
