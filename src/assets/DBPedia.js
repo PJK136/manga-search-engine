@@ -280,7 +280,71 @@ var DBPedia = {
         );
     }
 
+,
+    // get the search type on the selector, and then load all the possiblities in the datalist of the search bar 
+    loadAutoCompletion: function(){
+        return new Promise(
+            (resolve, reject) => {
+                var TypeSelector = document.getElementById("search-type");
+                query = "";
+
+                switch(TypeSelector.value){
+                    case "searchByName":
+                        query = "select distinct ?label where { "
+                                                                 + " ?manga rdf:type dbo:Manga; "
+                                                                 + " rdfs:label ?label. "
+                                                                 + " FILTER(lang(?label) = 'en'). "
+                                                            + " } ";
+                        break;
+                    case "searchByAuthor":
+                        query = "select distinct ?label where { "
+                                                        + " ?author_uri rdfs:label ?label. "
+                                                        + " ?manga dbo:author ?author_uri. "
+                                                        + " ?manga rdf:type dbo:Manga. "
+                                                        + " FILTER(lang(?label) = 'en'). "
+                                                + " } ";
+                        break;
+                    case "searchByGenre":
+                        query = "select distinct ?label where { "
+                                            + " { " 
+                                                    + " ?manga dbp:genre ?genre. "
+                                                    + " ?manga rdf:type dbo:Manga. "
+                                                    + " ?genre rdfs:label ?label. "
+                                            + " } "
+                                            + " UNION "
+                                            + " { "
+                                                   + " ?manga dbp:genre ?label. "
+                                                   + " ?manga rdf:type dbo:Manga. "
+                                            + " } "
+                                            + " FILTER(lang(?label) = 'en'). "
+                                    + " } ";
+                        break;
+                }
+
+                DBPedia.getSPARQLQueryResult(query).then(
+                    labels => {
+                        var dataList = document.getElementById("autocomplete");
+                        var content = "";
+
+                        for(var i=0; i<labels.length; ++i){
+                            content += "<option value='" + labels[i]["label"] + "'>";
+                        }
+
+                        dataList.innerHTML = content;
+                        resolve(labels);
+                    }
+                );        
+            }
+        );
+    }
+
 };
+
+
+$( document ).ready(function() {
+    DBPedia.loadAutoCompletion().then( result => { console.log("datalist loaded !"); } );
+});
+
 
 
 
