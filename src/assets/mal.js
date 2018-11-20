@@ -1,7 +1,7 @@
 var MAL = {
     pg13:3,
     
-    genres: ["", "Action", "Adventure", "Cars", "Comedy", "Dementia", "Demons", "Mystery", "Drama", "Ecchi", "Fantasy", "Game", "Hentai", "Historical", "Horror", "Kids", "Magic", "Martial Arts", "Mecha", "Music", "Parody", "Samurai", "Romance", "School", "Sci Fi", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Space", "Sports", "Super Power", "Vampire", "Yaoi", "Yuri", "Harem", "Slice of Life", "Supernatural", "Military", "Police", "Psychological", "Thriller", "Seinen", "Josei", "Doujinshi", "Gender Bender"],
+    genres: ["", "Action", "Adventure", "Cars", "Comedy", "Dementia", "Demons", "Mystery", "Drama", "Ecchi", "Fantasy", "Game", "Hentai", "Historical", "Horror", "Kids", "Magic", "Martial Arts", "Mecha", "Music", "Parody", "Samurai", "Romance", "School", "Sci Fi", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Space", "Sports", "Super Power", "Vampire", "Yaoi", "Yuri", "Harem", "Slice of Life", "Supernatural", "Military", "Police", "Psychological", "Thriller", "Seinen", "Josei", "Doujinshi", "Gender Bender"].map((value) => value.toLowerCase()),
     
     findManga : function(id)
     {
@@ -60,9 +60,9 @@ var MAL = {
     
     searchByGenre : function (genre)
     {
-        var indexGenre = MAL.genres.indexOf(genre);
-        if (indexGenre < 0)
-            indexGenre = undefined;
+        var indexGenre = MAL.genres.indexOf(genre.toLowerCase());
+        if (indexGenre <= 0)
+            return new Promise((resolve, reject) => { resolve([]); });
         return MAL.searchByNameGenre(undefined, indexGenre);
     },
     
