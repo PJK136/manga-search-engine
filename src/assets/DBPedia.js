@@ -297,40 +297,43 @@ var DBPedia = {
 
                 switch(TypeSelector.value){
                     case "searchByName":
-                        query = "select distinct ?label where { "
-                                                        + " ?manga rdf:type dbo:Manga; "
-                                                        + " rdfs:label ?label. "
-                                                        + " FILTER(lang(?label) = 'en'). "
-                                                + " } ";
+                        query = `select distinct ?label where { 
+                                                         ?manga rdf:type dbo:Manga; 
+                                                         rdfs:label ?label0. 
+                                                         FILTER(lang(?label0) = 'en'). 
+                                                         BIND ( IF ( contains(lcase(str(?label0)),"("), strbefore(str(?label0), "("), str(?label0)) as ?label). 
+                                                 } `;
                         break;
                     case "searchByAuthor":
-                        query = "select distinct ?label where { "
-                                                        + " ?author_uri rdfs:label ?label. "
-                                                        + " ?manga dbo:author ?author_uri. "
-                                                        + " ?manga rdf:type dbo:Manga. "
-                                                        + " FILTER(lang(?label) = 'en'). "
-                                                + " } ";
+                        query = `select distinct ?label where { 
+                                                         ?author_uri rdfs:label ?label0. 
+                                                         ?manga dbo:author ?author_uri. 
+                                                         ?manga rdf:type dbo:Manga. 
+                                                         FILTER(lang(?label0) = 'en'). 
+                                                         BIND ( IF ( contains(lcase(str(?label0)),"("), strbefore(str(?label0), "("), str(?label0)) as ?label).
+                                                 } `;
                         break;
                     case "searchByGenre":
                         query = ` select distinct ?label where {
                                     {
                                        ?manga dbp:genre ?genre.
                                        ?manga rdf:type dbo:Manga.
-                                       ?genre rdfs:label ?label.
+                                       ?genre rdfs:label ?label0.
                                     }
                                     UNION
                                     {
-                                       ?manga dbp:genre ?label.
+                                       ?manga dbp:genre ?label0.
                                        ?manga rdf:type dbo:Manga.
-                                        FILTER(isLiteral(?label)).
+                                        FILTER(isLiteral(?label0)).
                                     }
                                     UNION
                                     {
                                         ?manga dbp:demographic ?demo.
                                         ?manga rdf:type dbo:Manga.
-                                        ?demo rdfs:label ?label.
+                                        ?demo rdfs:label ?label0.
                                     }
-                                    FILTER(lang(?label) = "en" )
+                                    FILTER(lang(?label0) = "en" )
+                                    BIND ( IF ( contains(lcase(str(?label0)),"("), strbefore(str(?label0), "("), str(?label0)) as ?label).
                                 } `;
                         break;
                 }
