@@ -117,6 +117,8 @@ var AniList = {
             
             var status = manga["status"].charAt(0).toUpperCase() + manga["status"].slice(1).toLowerCase();
             
+            var seeAlso = manga["idMal"] ? "MyAnimeList" : undefined;
+            var seeAlsoURL = manga["idMal"] ? "https://myanimelist.net/manga/"+manga["idMal"] : undefined;
             mangaDatas.push({
                 "titleRomaji": manga["title"]["romaji"],
                 "titleKanji": manga["title"]["native"],
@@ -132,7 +134,9 @@ var AniList = {
                 "numberOfColumes": manga["volumes"],
                 "numberOfChapters": manga["chapters"],
                 "source": "AniList",
-                "sourceURL": manga["siteUrl"]
+                "sourceURL": manga["siteUrl"],
+                "seeAlso": seeAlso,
+                "seeAlsoURL": seeAlsoURL
             });
         }
         
@@ -142,6 +146,7 @@ var AniList = {
 
 AniList.coreQuery = `
     id
+    idMal
     title {
         romaji
         english

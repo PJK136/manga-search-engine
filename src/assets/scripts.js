@@ -80,7 +80,8 @@ var MangaList = {
         "numberOfVolumes":"Volumes",
         "numberOfChapters":"Chapters",
         "score":"Score",
-        "source":"Source"
+        "source":"Source",
+        "seeAlso":"See also"
     },
     
     appendList : function(divId, mangasData) {
@@ -190,6 +191,12 @@ var MangaList = {
             {
                 field = $("<a>");
                 field.attr("href",data["sourceURL"]);
+            }
+            
+            if (attr == "seeAlso" && data["seeAlsoURL"])
+            {
+                field = $("<a>");
+                field.attr("href",data["seeAlsoURL"]);
             }
                 
             field.attr("class",attr);
