@@ -28,12 +28,19 @@ var AniList = {
                        
                        if (name)
                        {
+                           var lname = name.toLowerCase();
                            mangas.sort((a,b) => {
-                                if ((a["title"]["romaji"] == name || a["title"]["native"] == name || a["title"]["english"] == name) &&
-                                    (b["title"]["romaji"] != name && b["title"]["native"] != name && b["title"]["english"] != name))
+                                var toLowerCase = function(str) {
+                                    if (str)
+                                        return str.toLowerCase();
+                                    return str;
+                                };
+                                
+                                if ((toLowerCase(a["title"]["romaji"]) == lname || toLowerCase(a["title"]["native"]) == lname || toLowerCase(a["title"]["english"]) == lname) &&
+                                    (toLowerCase(b["title"]["romaji"]) != lname && toLowerCase(b["title"]["native"]) != lname && toLowerCase(b["title"]["english"]) != lname))
                                     return -1;
-                                if ((a["title"]["romaji"] != name && a["title"]["native"] != name && a["title"]["english"] != name) &&
-                                    (b["title"]["romaji"] == name || b["title"]["native"] == name || b["title"]["english"] == name))
+                                if ((toLowerCase(a["title"]["romaji"]) != lname && toLowerCase(a["title"]["native"]) != lname && toLowerCase(a["title"]["english"]) != lname) &&
+                                    (toLowerCase(b["title"]["romaji"]) == lname || toLowerCase(b["title"]["native"]) == lname || toLowerCase(b["title"]["english"]) == lname))
                                     return 1;
                                 
                                 return b["popularity"] - a["popularity"];
