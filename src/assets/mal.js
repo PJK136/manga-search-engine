@@ -27,7 +27,8 @@ var MAL = {
                     "numberOfVolumes": manga["volumes"],
                     "numberOfChapters": manga["chapters"],
                     "source": "MyAnimeList",
-                    "sourceURL": manga["url"]
+                    "sourceURL": manga["url"],
+                    "idMal": manga["mal_id"]
                 };
                 
                 resolve(data);

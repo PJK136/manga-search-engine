@@ -143,7 +143,8 @@ var AniList = {
                 "source": "AniList",
                 "sourceURL": manga["siteUrl"],
                 "seeAlso": seeAlso,
-                "seeAlsoURL": seeAlsoURL
+                "seeAlsoURL": seeAlsoURL,
+                "idMal": manga["idMal"]
             });
         }
         

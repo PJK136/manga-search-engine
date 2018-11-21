@@ -172,6 +172,8 @@ var DBPedia = {
                             ));
                         });
                         
+                        if ("titleEnglish" in manga && manga["titleEnglish"].endsWith(" (manga)"))
+                            manga["titleEnglish"] = manga["titleEnglish"].slice(0,-" (manga)".length);
                         if("firstPublicationDate" in manga)
                             manga["firstPublicationDate"] = moment(manga["firstPublicationDate"]);
                         if("lastPublicationDate" in manga)
@@ -179,6 +181,12 @@ var DBPedia = {
                         manga["source"] = "DBPedia";
                         manga["sourceURL"] = mangaURI.slice(1,-1);
                         $.when.apply($, promises).then(function() {    
+                            if ("genres" in manga)
+                            {
+                                for (var i in manga["genres"])
+                                    if (manga["genres"][i].endsWith(" (genre)"))
+                                        manga["genres"][i] = manga["genres"][i].slice(0,-" (genre)".length);
+                            }
                             resolve(manga);
                         });
                     }

@@ -36,7 +36,24 @@ var SearchBar = {
             promises.push(SearchBar.searchWith(MAL[searchType], query, "mal-results"));
         }
         
-        $.when.apply($, promises).then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false))
+        $.when.apply($, promises)
+        .then(function() {
+            if (searchType != "searchByName")
+                return;
+            
+            var sources = {}
+            for (var i in arguments)
+                for (var j in arguments[i])
+                    sources[j] = arguments[i][j];
+                
+            var aggregated = MangaList.aggregate([sources["anilist-results"], sources["dbpedia-results"], sources["mal-results"]]);
+            if (aggregated)
+            {
+                $("#aggregated-section").show();
+                MangaList.append("aggregated-results", aggregated);
+            }
+        })
+        .then(() => submitButton.removeClass("btn-secondary").addClass("btn-primary").prop('disabled', false))
         .catch((error) => { console.log(error); submitButton.removeClass("btn-secondary").addClass("btn-danger").prop('disabled', false);});
     },
     
@@ -44,7 +61,7 @@ var SearchBar = {
         return new Promise((resolve, reject) => {
             var promise = searchEngine(query);
             promise.then(mangaList => MangaList.appendList(resultDivId, mangaList));
-            promise.then(() => resolve());
+            promise.then(mangaList => { var res = {}; res[resultDivId] = mangaList[0]; resolve(res); });
             promise.catch((error) => reject(error));
         });
     }
@@ -209,12 +226,95 @@ var MangaList = {
 
     empty : function() {
         MAL.mangaItemId = 0;
+        $("#aggregated-section").hide();
+        $("#aggregated-results").empty();
         $("#dbpedia-section").hide();
         $("#dbpedia-results").empty();
         $("#anilist-section").hide();
         $("#anilist-results").empty();
         $("#mal-section").hide();
         $("#mal-results").empty();
-    }
+    },
+    
+    aggregate : function(sources) {
+        if (sources.every(s => !s))
+            return null;
+        
+        var aggregated = {};
+        
+        var ignoredFields = ["seeAlso"];
+        
+        // Check if same manga
+        var titleEnglish = undefined;
+        var idMal = undefined;
+        for (var i in sources)
+        {
+            if (!sources[i])
+                continue;
+            
+            if (idMal)
+            {
+                if (sources[i]["idMal"] && sources[i]["idMal"] != idMal)
+                    return null;
+            }
+            else
+                idMal = sources[i]["idMal"];
+            
+            if (titleEnglish)
+            {
+                if (sources[i]["titleEnglish"] && sources[i]["titleEnglish"].toLowerCase() != titleEnglish)
+                    return null;
+            }
+            else if (sources[i]["titleEnglish"])
+                titleEnglish = sources[i]["titleEnglish"].toLowerCase();
+        }
+        
+        // Merge all data
+        var mergeAttributes = function(attr) {
+            if (attr in ignoredFields)
+                return;
+            
+            if (attr == "genres")
+            {
+                var genres = [];
+                for (var i in sources)
+                {
+                    if (sources[i] && sources[i][attr])
+                        for (var j in sources[i][attr])
+                            genres.push(sources[i][attr][j]);
+                }
+                
+                if (genres.length > 0)
+                    aggregated[attr] = Array.from(new Set(genres));
+                return;
+            }
 
+            for (var i in sources) //Array.from(new Set(
+            {
+                if (sources[i] && sources[i][attr])
+                {
+                    if (attr == "source")
+                    {
+                        if (aggregated[attr])
+                            aggregated[attr] = aggregated[attr] + ", " + sources[i][attr];
+                        else
+                            aggregated[attr] = sources[i][attr];
+                    }
+                    else
+                    {
+                        aggregated[attr] = sources[i][attr];
+                        break;
+                    }
+                }
+            }
+        }
+        
+        for (var i in MangaList.specialFields)
+            mergeAttributes(MangaList.specialFields[i]);
+        
+        for (var attr in MangaList.fields)
+            mergeAttributes(attr);
+        
+        return aggregated;
+    }
 };
